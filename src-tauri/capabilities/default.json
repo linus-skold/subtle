@@ -9,6 +9,12 @@
     "core:default",
     "opener:default",
     "sql:default",
-    "sql:allow-execute"
+    "sql:allow-execute",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-size",
+    "fs:default",
+    "fs:read-all",
+    "fs:write-all"
   ]
 }

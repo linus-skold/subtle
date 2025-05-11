@@ -24,6 +24,10 @@ const eslintConfig = tseslint.config(
       "@next/next/no-img-element": "off",
       // Biome recommended rules
       "jsx-a11y/no-access-key": "off",
+      // custom rules
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-confusing-void-expression": "off",
     },
     languageOptions: {
       parserOptions: {
