@@ -36,3 +36,59 @@ body {
     background: linear-gradient(to right, transparent, #6b7280, transparent); /* Gray swipe */
   }
 }
+
+
+.titlebar-buttons {
+  columns: 3;
+  
+}
+
+.titlebar-button {
+  display: block;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  align-content: center;
+  padding-left:4px;
+  margin: 0 5px;
+}
+
+.titlebar-button:hover {
+  background-color: var(--foreground);
+}
+
+
+.strike-through {
+  text-decoration: line-through;
+  text-decoration-color: #f56565; /* Example red color */
+}
+
+.icon-shrink {
+ width: 28px;
+  height: 28px;
+  display: inline-block;
+  color:red;
+  background-image: url("/arrow-shrink.svg"); 
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+
+
+.subtle-gradient-shift {
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  background-size: 200% 200%;
+  animation: shift-gradient 6s ease-in-out infinite;
+}
+
+@keyframes shift-gradient {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
