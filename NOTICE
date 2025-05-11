@@ -1,6 +1,14 @@
+This project includes code from the following open source projects:
+
+---
+
+Project: tauri-nextjs-template
+Source: https://github.com/kvnxiao/tauri-nextjs-template
+Licenses: MIT
+
 MIT License
 
-Copyright (c) 2025 Linus Sköld
+Copyright (c) 2022 Kevin Xiao
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
