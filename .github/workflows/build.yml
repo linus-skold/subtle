@@ -3,8 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   build:
@@ -43,11 +41,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v2
-        with:
-          files: 
-            - ./src-tauri/target/release/bundle/msi/Subtle Todo_0.1.0_x64_en-US.msi
-            - ./src-tauri/target/release/bundle/nsis/Subtle Todo_0.1.0_x64_en-US.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
