@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint && biome check src/",
-    "tauri": "tauri",
-    "tauri:toast": "node dev-with-toast.js"
+    "tauri": "tauri"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
