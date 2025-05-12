@@ -6,7 +6,7 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 import { parseEstimate } from '@/utils/time.utils';
 
-const AddTaskComponent = ({ className }: { className?: string }) => {
+const AddTaskComponent = ({ className, children }: { className?: string, children?: React.ReactNode }) => {
   const [addingTask, setAddingTask] = useState(false);
   const [taskName, setTaskName] = useState('');
   const [taskEstimateString, setTaskEstimateString] = useState<string>('00:05');
@@ -66,7 +66,7 @@ const AddTaskComponent = ({ className }: { className?: string }) => {
 
       <form onSubmit={handleSubmit}>
         <div
-          className={`flex flex-col mt-2 transform transition-all duration-250 ease-in-out ${
+          className={`flex flex-col transform transition-all duration-250 ease-in-out gap-2 ${
             addingTask
               ? 'opacity-100 translate-y-0 max-h-96'
               : 'opacity-0 -translate-y-2 max-h-0 overflow-hidden'
@@ -78,7 +78,7 @@ const AddTaskComponent = ({ className }: { className?: string }) => {
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
               placeholder="Task"
-              className={`border ${error ? 'border-red-500' : 'border-green-400'} rounded-md p-2 mb-2 w-full placeholder:text-sm`}
+              className={`border ${error ? 'border-red-500' : 'border-green-400'} rounded-md p-2 w-full placeholder:text-sm`}
             />
             <input
               type="text"
@@ -87,10 +87,10 @@ const AddTaskComponent = ({ className }: { className?: string }) => {
                 setTaskEstimateString(e.target.value);
               }}
               placeholder="hh:mm"
-              className="border border-green-400 rounded-md p-2 mb-2 w-16 placeholder:text-sm"
+              className="border border-green-400 rounded-md p-2 w-16 placeholder:text-sm"
             />
           </div>
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end">
             <button
               type="submit"
               className="cursor-pointer text-white bg-gradient-to-r from-green-400 to-blue-500 
@@ -101,6 +101,7 @@ const AddTaskComponent = ({ className }: { className?: string }) => {
           </div>
         </div>
       </form>
+      {children}
     </div>
   );
 };

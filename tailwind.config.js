@@ -1,6 +1,11 @@
 module.exports = {
   theme: {
     extend: {
+      colors: {
+        primary: '#1f2937',
+        secondary: '#05df72',
+        accent: '#2b7fff',
+      },
       keyframes: {
         'slide-fade-down': {
           '0%': { opacity: '0', transform: 'translateY(-10px)' },

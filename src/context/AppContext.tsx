@@ -2,19 +2,28 @@ import { createContext, useContext, useState } from 'react';
 
 import { z } from 'zod';
 
+
+export const AppSettingsSchema = z.object({
+  alwaysOnTop: z.boolean().default(false),
+  autoStart: z.boolean().default(false),
+  autoStartOnLogin: z.boolean().default(false)
+});
+
 export const AppStateSchema = z.object({
   isFocusMode: z.boolean().default(false),
   isCompactMode: z.boolean().default(false),
+  isSettingsModalOpen: z.boolean().default(false),
 });
 
-export type AppState = z.infer<typeof AppStateSchema>;
 
+export type AppState = z.infer<typeof AppStateSchema>;
 export const PartialAppStateSchema = AppStateSchema.partial();
 export type PartialAppState = z.infer<typeof PartialAppStateSchema>;
 
 const AppStateDefault: AppState = {
   isFocusMode: false,
   isCompactMode: false,
+  isSettingsModalOpen: false,
 };
 
 

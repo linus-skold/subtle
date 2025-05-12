@@ -44,7 +44,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`bg-gray-800 m-2 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
+        className={`min-h-[calc(60px)] max-h-[calc(60px)] bg-gray-800 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
           isCompleting ? '-translate-y-10 opacity-0' : ''
         }`}
       >

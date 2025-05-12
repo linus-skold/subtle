@@ -3,7 +3,7 @@
 
 const ProgressBar = ({ progress, text }: { progress: number; text: string }) => {
   return (
-    <div className="flex justify-center items-center space-x-3">
+    <div className="mt-4 flex justify-center items-center space-x-3">
 
     <div className="relative flex-1 h-2 rounded-full bg-gray-800 ">
       <div
