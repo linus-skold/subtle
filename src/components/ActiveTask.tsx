@@ -6,13 +6,12 @@ import {
   PlayIcon,
 } from '@heroicons/react/24/outline';
 import { useTasks } from '@/context/TaskContext';
-import { parseProgress } from '@/utils/time.utils';
+import { formatProgress } from '@/utils/time.utils';
 
 const ActiveTask = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { activeTask, getTaskById, updateTask, setActiveTask } = useTasks();
-  const [overtime, setOvertime] = useState(false);
   const [ isPaused, setIsPaused ] = useState(false);
   
   const intervalRef = useRef(null);
@@ -20,54 +19,69 @@ const ActiveTask = () => {
   const currentTask = getTaskById(activeTask);
 
   const title = currentTask?.task_name;
-  const estimate = currentTask?.estimate ?? 60;
   
-  const [taskTimer, setTaskTimer] = useState(currentTask?.progress);
+  const [ overtime, setOvertime ] = useState(false);
+  const [ taskTimer, setTaskTimer ] = useState(currentTask?.progress);
 
   const taskTimerRef = useRef(0);
+  const overtimeRef = useRef(false);
 
   const previousTaskId = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (
-      previousTaskId.current !== null &&
-      previousTaskId.current !== activeTask
-    ) {
-      updateTask(previousTaskId.current, {
-        active: false,
-        progress: taskTimerRef.current,
+useEffect(() => {
+  if (
+    previousTaskId.current !== null &&
+    previousTaskId.current !== activeTask
+  ) {
+    updateTask(previousTaskId.current, {
+      active: false,
+      overtime: overtimeRef.current,
+      progress: taskTimerRef.current,
+    });
+  }
+
+  if (activeTask !== null) {
+    updateTask(activeTask, {
+      active: true,
+    });
+
+    const current = getTaskById(activeTask);
+    const startingTimer = current?.progress > 0 ? current.progress : current?.estimate ?? 0;
+
+    setTaskTimer(startingTimer);
+    taskTimerRef.current = startingTimer;
+
+    const isOvertime = current?.overtime ?? false;
+    setOvertime(isOvertime);
+    overtimeRef.current = isOvertime;
+  }
+
+  previousTaskId.current = activeTask;
+}, [activeTask]);
+
+
+ useEffect(() => {
+  if (!isPaused) {
+    intervalRef.current = setInterval(() => {
+      setTaskTimer((prev) => {
+        let newTime;
+        
+        if (prev === 0 && !overtimeRef.current) {
+          setOvertime(true);
+          overtimeRef.current = true;
+          newTime = 0;
+        } else {
+          newTime = prev + (overtimeRef.current ? 1 : -1);
+        }
+
+        taskTimerRef.current = newTime;
+        return newTime;
       });
-    }
+    }, 1000);
+  }
 
-    if (activeTask !== null) {
-      updateTask(activeTask, {
-        active: true,
-      });
-    }
-
-    setTaskTimer(currentTask?.progress > 0 ? currentTask?.progress : estimate);
-    setOvertime(currentTask?.progress > estimate);
-    previousTaskId.current = activeTask;
-  }, [activeTask]);
-
-
-  useEffect(() => {
-    if(!isPaused) {
-
-      intervalRef.current = setInterval(() => {
-        setTaskTimer((prev) => {
-          if (prev === 0 && !overtime) {
-            setOvertime(true);
-            return 0;
-          }
-          taskTimerRef.current = prev + (overtime ? 1 : -1);
-          return prev + (overtime ? 1 : -1);
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(intervalRef.current);
-  }, [isPaused, overtime]);
+  return () => clearInterval(intervalRef.current);
+}, [isPaused]);
 
   return (
     <div
@@ -96,6 +110,7 @@ const ActiveTask = () => {
                 updateTask(currentTask.id, {
                   completed: true,
                   active: false,
+                  progress: taskTimer,
                 });
                 setActiveTask(null);
               }
@@ -109,7 +124,7 @@ const ActiveTask = () => {
           >
             <h1 className="text-white">{title}</h1>
             <h1 className={overtime ? 'text-yellow-600' : 'text-white'}>
-              {parseProgress(taskTimer)}
+              {formatProgress(taskTimer)}
             </h1>
           </div>
         </div>

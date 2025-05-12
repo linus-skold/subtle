@@ -4,34 +4,13 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useTasks } from '@/context/TaskContext';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
-const AddTaskComponent = () => {
+import { parseEstimate } from '@/utils/time.utils';
+
+const AddTaskComponent = ({ className }: { className?: string }) => {
   const [addingTask, setAddingTask] = useState(false);
   const [taskName, setTaskName] = useState('');
-  const [taskEstimate, setTaskEstimate] = useState<number>(0);
-  const [taskEstimateString, setTaskEstimateString] = useState<string>('');
+  const [taskEstimateString, setTaskEstimateString] = useState<string>('00:05');
   const [error, setError] = useState<string | null>(null);
-
-  const parseTaskEstimate = (estimate: string) => {
-    if (estimate.includes('h')) {
-      const parts = estimate.split('h');
-      const hours = parseInt(parts[0], 10);
-      if (estimate.includes('m')) {
-        const minutes = parseInt(parts[1].replace('m', ''), 10);
-        setTaskEstimate(hours * 60 + minutes);
-        return;
-      }
-
-      const minutes = parseInt(parts[1], 10);
-      setTaskEstimate(hours * 60 + minutes);
-    }
-
-    const parts = estimate.split(':');
-    if (parts.length === 2) {
-      const hours = parseInt(parts[0], 10);
-      const minutes = parseInt(parts[1], 10);
-      setTaskEstimate(hours * 60 + minutes);
-    }
-  };
 
   const { addTask, tasks } = useTasks();
 
@@ -42,24 +21,26 @@ const AddTaskComponent = () => {
       return;
     }
 
-    console.log('Adding task:', taskName, taskEstimate);
+    const parsedEstimate = parseEstimate(taskEstimateString);
+    if (!parsedEstimate) {
+      setError('Invalid estimate format. Use hh:mm or h:mm');
+      return;
+    }
+
     addTask({
-      id: tasks.length + 1,
       task_name: taskName,
-      estimate: taskEstimate,
+      estimate: parsedEstimate * 60,
       progress: 0,
       completed: false,
-      active: false,
     });
 
     setTaskName('');
-    setTaskEstimate(0);
-    setTaskEstimateString('');
+    setTaskEstimateString('00:05');
     setError(null);
   };
 
   return (
-    <div className="mx-4">
+    <div className={className}>
       <button
         className="flex cursor-pointer"
         onClick={() => setAddingTask(!addingTask)}
@@ -104,13 +85,12 @@ const AddTaskComponent = () => {
               value={taskEstimateString}
               onChange={(e) => {
                 setTaskEstimateString(e.target.value);
-                parseTaskEstimate(e.target.value);
               }}
               placeholder="hh:mm"
               className="border border-green-400 rounded-md p-2 mb-2 w-16 placeholder:text-sm"
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
               className="cursor-pointer text-white bg-gradient-to-r from-green-400 to-blue-500 

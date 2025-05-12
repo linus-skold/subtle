@@ -7,7 +7,7 @@ import { SidebarComponent } from '@/components/Sidebar';
 import { TitlebarComponent } from '@/components/Titlebar';
 import { App } from '@/components/App';
 import TaskList from '@/components/TaskList';
-import Task2 from '@/components/Task2';
+import Task from '@/components/Task';
 import ActivityBar from '@/components/ActivityBar';
 import ActiveTask from '@/components/ActiveTask';
 import CompletedTask from '@/components/CompletedTask';
@@ -61,28 +61,32 @@ export default function Home() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-        <App className="">
+        <App >
           {!state.isFocusMode && <TitlebarComponent />}
           {!state.isCompactMode && !state.isFocusMode && <SidebarComponent />}
-          <div className="m-2">
+          <div className="m-2 flex flex-col h-full">
             <ActivityBar />
 
             { activeTask && <ActiveTask /> }
             <TaskList className="overflow-y-scroll max-h-[calc(380px)] [&::-webkit-scrollbar]:w-[2px] [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 z-20">
               {tasks.length > 0 && tasks.filter((task) => !task.completed && !task.active).map((task, index) => (
-                <Task2
+                <Task
                   key={task.id}
                   order={index + 1}
                   task={task}
                 />
               ))}
             </TaskList>
-            <AddTaskComponent />
-            <hr className="my-4" />
-              <TaskList>
+            <AddTaskComponent className='mx-4 my-4' />
+            <hr className="h-[1px] my-4 mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
+              <div className="max-h-[calc(280px)] flex w-full">
+              <TaskList className="overflow-y-scroll w-full [&::-webkit-scrollbar]:w-[2px] [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
                 {tasks.length > 0 && tasks.filter((task) => task.completed).map((task) => (
                   <CompletedTask
                     key={task.id}
@@ -90,6 +94,7 @@ export default function Home() {
                   />
                 ))}
               </TaskList>
+              </div>
           </div>
         </App>
       </SortableContext>

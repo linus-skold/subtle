@@ -1,25 +1,14 @@
 'use client';
-import { z } from 'zod';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-export const TaskSchema = z.object({
-  id: z.number(),
-  task_name: z.string(),
-  estimate: z.number().default(0),
-  progress: z.number().default(0),
-  completed: z.boolean().default(false),
-  active: z.boolean().default(false),
-});
-export type Task = z.infer<typeof TaskSchema>;
+import { Task, PartialTask, TaskInsert } from '@/types/task.types';
 
-export const PartialTaskSchema = TaskSchema.partial();
-export type PartialTask = z.infer<typeof PartialTaskSchema>;
+import * as dbHelper from '@/utils/database.utils';
 
-// define the context type
 export interface TaskContextType {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  addTask: (task: Task) => void;
+  addTask: (task: TaskInsert) => void;
   removeTask: (taskId: number) => void;
   updateTask: (taskId: number, updatedTask: PartialTask) => void;
   activeTask: number | null;
@@ -54,26 +43,32 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
-  // useEffect(() => {
-  //   const saveTasks = async () => {
-  //     await saveToLocalStorage(tasks);
-  //   };
+  useEffect(() => {
+    const startup = async () => {
 
-  //   saveTasks(); // Call the async function
-  // }, [tasks]);
+      await dbHelper.setDatabase();
+      await dbHelper.createTable();
+      const tasks = await dbHelper.loadTasks();
+      setTasks(tasks);
+    };
+    startup().then(() => {
+      console.log('Database initialized and tasks loaded');
+    }).catch((error) => {
+      console.error('Error loading tasks:', error);
+    }
+    );
+  }, [])
 
-  // useEffect(() => {
-  //   const fetchTasks = async () => {
-  //     const storedTasks = await readFromLocalStorage();
-  //     setTasks(storedTasks ?? []); // If null or undefined, default to empty array
-  //   };
 
-  //   fetchTasks(); // Call the async function to fetch the tasks
-  // }, []); // Empty dependency array to run only once on mount
-
-  const addTask = (task: Task) => {
-    const updatedTasks = [...tasks, task];
-    setTasks(updatedTasks);
+  const addTask = (task: TaskInsert) => {
+    dbHelper
+      .addTask(task)
+      .then((result) => {
+        setTasks((prevTasks) => [...prevTasks, { ...task, id: result.lastInsertId }]);
+      })
+      .catch((error) => {
+        console.error('Error adding task:', error);
+      });
   };
 
   const removeTask = (taskId: number) => {
@@ -87,6 +82,24 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         task.id === taskId ? { ...task, ...updatedTask } : task,
       ),
     );
+
+    // get the task by id
+    const task = tasks.find((task) => task.id === taskId);
+    if (!task) {
+      console.error('Task not found:', taskId);
+      return;
+    }
+    // update the task in the database
+
+    dbHelper
+      .updateTask({...task, ...updatedTask})
+      .then(() => {
+        console.log('Task updated successfully',  { task: {...task, ...updatedTask}, id: taskId });
+      })
+      .catch((error) => {
+        console.error('Error updating task:', error, { task: {...task, ...updatedTask}, id: taskId });
+      });
+
   };
 
   const getTaskById = (taskId: number) => {

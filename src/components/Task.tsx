@@ -1,176 +1,105 @@
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import { ChevronRightIcon, PlusIcon } from "@heroicons/react/16/solid";
-import { TaskSubSchema, type Task } from "@/helpers/databaseHelpers";
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { EllipsisVerticalIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import {
+  CheckCircleIcon,
+  DocumentTextIcon,
+} from '@heroicons/react/24/outline';
+import { useTasks } from '@/context/TaskContext';
 
-import { CheckCircle } from "./Checkmark";
+import { Task } from '@/types/task.types';
 
-import * as dbHelper from "@/helpers/databaseHelpers";
+import { formatEstimate, formatProgress } from '@/utils/time.utils';
 
 
-export const TaskComponentSchema = TaskSubSchema.extend({
-  level: z.number(),
-  isFocused: z.boolean().optional(),
-  onCheck: z.function().optional(),
-  onEdit: z.function().optional(),
-  onDelete: z.function().optional(),
-  onClick: z.function().optional(),
-  onHover: z.function().args(z.number()).optional(),
-});
+const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
+  const { attributes, listeners, setNodeRef, transform } = useSortable({
+    id: task.id,
+  });
 
-export type TaskComponentProps = z.infer<typeof TaskComponentSchema>; 
+  const [isHovered, setIsHovered] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
-export const TaskComponent = (taskProps: TaskComponentProps) => {
-  // if it has subtasks show an arrow and becomes an accordion
+  const { updateTask, setActiveTask } = useTasks();
 
-  const [task, setTask] = useState<Task>(taskProps);
-
-  const [subtasks, setSubtasks] = useState<Task[]>(taskProps.subtasks ?? []);
-  const [taskName, setTaskName] = useState(taskProps.task_name);
-  const [showSubtasks, setShowSubtasks] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(taskProps.completed ?? false);
-
-  const [updated, setUpdated] = useState(false);
-
-  const addSubtask = () => {
-    const newTask: dbHelper.TaskInsert = {
-      task_name: "Subtask",
-      parent_id: taskProps.id,
-    };
-
-    dbHelper
-      .addSubtask(newTask)
-      .then((result) => {
-        console.log(result);
-
-        const id = result.lastInsertId;
-
-        const subtask: Task = {
-          id: id ?? -1,
-          task_name: `Subtask`,
-          completed: false,
-          parent_id: taskProps.id,
-        };
-        setSubtasks((prev) => [...prev, subtask]);
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-      });
+  const style = {
+    transform: CSS.Translate.toString(transform),
   };
 
-  useEffect(() => {
-    if (!updated) return;
+  const completeTime = 200;
 
-    const updatedTask = {
-      ...task,
-      task_name: taskName,
-      completed: isCompleted,
-    };
-    setTask(updatedTask);
+  const { task_name: title, estimate } = task;
 
-    dbHelper
-      .editTask(updatedTask)
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-      });
+  console.log(task.progress)
 
-    setUpdated(false);
-  }, [updated]);
+  const progress = task.progress > estimate ? task.progress : estimate - task.progress;
 
-  const swipeAnimationClass = `
-  relative overflow-hidden before:absolute before:top-0 before:left-0 before:h-full before:w-full
-  before:bg-gradient-to-r before:from-transparent ${
-    isCompleted ? "before:via-green-600" : "before:via-gray-600"
-  } before:to-transparent
-  before:transition-transform before:duration-400 before:ease-in-out
-  before:content-[''] before:translate-x-[-100%]
-`;
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTaskName(e.target.value);
-    setUpdated(true);
-  };
-
-  const padding = (20 * (taskProps.level)).toString();
 
   return (
-        <div>
-          <div className="flex flex-col text-sm">
+    <div
+      ref={setNodeRef}
+      style={style}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div
+        className={`bg-gray-800 m-2 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
+          isCompleting ? '-translate-y-10 opacity-0' : ''
+        }`}
+      >
+        <div className={`flex justify-between transition-all duration-200`}>
+          <div className="flex space-x-2 font-bold max-w-full justify-center items-center overflow-hidden">
+            <h1 className="text-gray-400 text-sm">{order}</h1>
+
+            {/* Icon container with animated width */}
             <div
-              onMouseEnter={() => {
-                taskProps.onHover?.(task.id);
-              }}
-              className={`flex flex-row items-center pt-1 pb-1 hover:bg-gray-800 dark:hover:bg-gray-800
-        ${taskProps.isFocused ? "bg-gray-800 dark" : ""}
-        ${swipeAnimationClass} ${isCompleted ? "before:translate-x-full" : ""}`}
-              style={{ paddingLeft: `${padding}px` }}
+              className={`overflow-hidden transition-all duration-100 ease-in-out z-20 ${
+                isHovered ? 'w-5' : 'w-0 pointer-events-none'
+              }`}
             >
-              <div
-                className={`cursor-pointer ${showSubtasks ? "rotate-90" : ""}`}
-                style={{ width: "24px" }} // Fixed width to reserve space for the chevron
-              >
-                {subtasks.length > 0 && (
-                  <ChevronRightIcon
-                    className="h-4 w-4"
-                    onClick={() => {
-                      setShowSubtasks(!showSubtasks);
-                    }}
-                  />
-                )}
-              </div>
-
-              <div
-                className="pl-2 cursor-pointer"
-                onClick={() => {
-                  setIsCompleted(!isCompleted);
-                  setUpdated(true);
+              <CheckCircleIcon
+                className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCompleting(true);
+                  setTimeout(() => {
+                    updateTask(task.id, { completed: true, progress });
+                  }, completeTime);
                 }}
-              >
-                <CheckCircle filled={isCompleted} />
-              </div>
-
-              <div
-                className="cursor-pointer ml-1 hover:bg-gray-500 rounded"
-                onClick={() => {
-                  addSubtask();
-                  setShowSubtasks(true);
-                }}
-              >
-                <PlusIcon className="h-4 w-4" />
-              </div>
-
-              <div className="cursor-edit pl-2 flex-1">
-                <input
-                  type="text"
-                  value={taskName}
-                  onChange={handleInputChange}
-                  className="border-none focus:ring-0"
-                />
-              </div>
+              />
             </div>
 
-            <hr className="h-px w-full bg-gray-200 border-0 dark:bg-gray-700" />
-
-            {showSubtasks && (
-              <div className="">
-                {subtasks.map((subtask) => {
-                  return (
-                    <TaskComponent
-                      key={subtask.id}
-                      level={taskProps.level + 1}
-                      task_name={subtask.task_name}
-                      id={subtask.id}
-                      completed={subtask.completed}
-                      subtasks={subtask.subtasks}
-                    />
-                  );
-                })}
-              </div>
-            )}
+            {/* Title with margin transition */}
+            <h1
+              className={`text-white truncate text-base`}
+            >
+              {title}
+            </h1>
+          </div>
+          <div
+            className={`flex space-x-2 justify-end z-20 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          >
+            <DocumentTextIcon
+              className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
+              onClick={() => console.log('hello world')}
+            />
+            <PlayIcon className="h-5 w-5 text-gray-400 hover:text-green-400" onClick={() => setActiveTask(task.id)} />
+            <EllipsisVerticalIcon className="h-5 w-5 text-gray-400 hover:text-gray-100" />
           </div>
         </div>
+        <div className={`flex justify-between transition-opacity duration-200`}>
+          <p className="text-gray-400 text-sm">{formatEstimate(estimate)}</p>
+          <p className="text-gray-400 text-sm">{ formatProgress(progress) }</p>
+        </div>
+        <div
+          className="absolute top-0 left-0 w-full h-full z-10"
+          {...listeners}
+          {...attributes}
+        ></div>
+      </div>
+    </div>
   );
 };
+
+export default TaskComponent;
