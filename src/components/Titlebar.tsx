@@ -13,8 +13,12 @@ export const TitlebarComponent = () => {
       </div>
       <div className="mx-4">
           <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-white transition-colors" onClick={() => {
-            
-            getCurrentWindow().close();
+
+            getCurrentWindow().close().then(() => {
+              console.log("Window closed");
+            }).catch((error: unknown) => {
+              console.error("Error closing window:", error);
+            });
 
 }} />
       </div>

@@ -11,7 +11,7 @@ import Task from '@/components/Task';
 import ActivityBar from '@/components/ActivityBar';
 import ActiveTask from '@/components/ActiveTask';
 import CompletedTask from '@/components/CompletedTask';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import {
   SortableContext,
   arrayMove,
@@ -46,12 +46,12 @@ export default function Home() {
     }
   }, [width]);
 
-  function handleDragEnd(event) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (active.id !== over?.id) {
       setTasks((tasks) => {
         const oldIndex = tasks.findIndex((task) => task.id === active.id);
-        const newIndex = tasks.findIndex((task) => task.id === over.id);
+        const newIndex = tasks.findIndex((task) => task.id === over?.id);
 
         return arrayMove(tasks, oldIndex, newIndex);
       });

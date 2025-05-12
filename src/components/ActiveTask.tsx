@@ -7,21 +7,26 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTasks } from '@/context/TaskContext';
 import { formatProgress } from '@/utils/time.utils';
+import { Task } from '@/types/task.types';
+
 
 const ActiveTask = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { activeTask, getTaskById, updateTask, setActiveTask } = useTasks();
   const [ isPaused, setIsPaused ] = useState(false);
-  
-  const intervalRef = useRef(null);
-  
-  const currentTask = getTaskById(activeTask);
 
-  const title = currentTask?.task_name;
+  const intervalRef = useRef<number|null>(null);
+
+  const currentTask = useRef<Task|null>(null);
+
+
+  if(activeTask !== null) {
+    currentTask.current = getTaskById(activeTask);
+  }
   
   const [ overtime, setOvertime ] = useState(false);
-  const [ taskTimer, setTaskTimer ] = useState(currentTask?.progress);
+  const [ taskTimer, setTaskTimer ] = useState(0);
 
   const taskTimerRef = useRef(0);
   const overtimeRef = useRef(false);
@@ -46,12 +51,13 @@ useEffect(() => {
     });
 
     const current = getTaskById(activeTask);
-    const startingTimer = current?.progress > 0 ? current.progress : current?.estimate ?? 0;
+    if (!current) return;
+    const startingTimer = current.progress > 0 ? current.progress : current.estimate;
 
     setTaskTimer(startingTimer);
     taskTimerRef.current = startingTimer;
 
-    const isOvertime = current?.overtime ?? false;
+    const isOvertime = current.overtime;
     setOvertime(isOvertime);
     overtimeRef.current = isOvertime;
   }
@@ -62,7 +68,7 @@ useEffect(() => {
 
  useEffect(() => {
   if (!isPaused) {
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = window.setInterval(() => {
       setTaskTimer((prev) => {
         let newTime;
         
@@ -80,7 +86,7 @@ useEffect(() => {
     }, 1000);
   }
 
-  return () => clearInterval(intervalRef.current);
+  return () => clearInterval(intervalRef.current ?? 0);
 }, [isPaused]);
 
   return (
@@ -106,8 +112,8 @@ useEffect(() => {
             
             
             <CheckCircleIcon className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors" onClick={() => {
-              if (currentTask) {
-                updateTask(currentTask.id, {
+              if (currentTask.current?.id) {
+                updateTask(currentTask.current.id, {
                   completed: true,
                   active: false,
                   progress: taskTimer,
@@ -122,7 +128,7 @@ useEffect(() => {
               isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
-            <h1 className="text-white">{title}</h1>
+            <h1 className="text-white">{currentTask.current?.task_name}</h1>
             <h1 className={overtime ? 'text-yellow-600' : 'text-white'}>
               {formatProgress(taskTimer)}
             </h1>

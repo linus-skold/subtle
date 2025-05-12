@@ -1,14 +1,11 @@
-import Dropdown from './Dropdown';
 
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { HomeIcon } from '@heroicons/react/24/outline';
 import { BoltIcon } from '@heroicons/react/24/outline';
-import { useAppContext } from '../context/AppContext';
 import ProgressBar from './ProgressBar';
 import { useTasks } from '@/context/TaskContext';
 
 const ActivityBar = () => {
-  const { state, updateState } = useAppContext();
 
   const { tasks } = useTasks();
   const completedTasks = tasks.filter((task) => task.completed);
@@ -22,7 +19,6 @@ const ActivityBar = () => {
     <div className="m-4">
       <div className="flex justify-between mb-4">
         <div className="flex">
-          {/* <Dropdown /> */}
           <h1 className="text-xl font-bold">Today</h1>
         </div>
         <div className="flex space-x-4">

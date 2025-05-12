@@ -28,6 +28,7 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/restrict-template-expressions": "off",
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
     },
     languageOptions: {
       parserOptions: {

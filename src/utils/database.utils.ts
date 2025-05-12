@@ -1,6 +1,6 @@
 import Database from '@tauri-apps/plugin-sql';
 import { z } from 'zod';
-import { PartialTask, Task, TaskInsert, TaskSchema } from '@/types/task.types';
+import { Task, TaskInsert, TaskSchema } from '@/types/task.types';
 
 let database: Database;
 

@@ -45,28 +45,39 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const startup = async () => {
-
       await dbHelper.setDatabase();
       await dbHelper.createTable();
       const tasks = await dbHelper.loadTasks();
       setTasks(tasks);
     };
-    startup().then(() => {
-      console.log('Database initialized and tasks loaded');
-    }).catch((error) => {
-      console.error('Error loading tasks:', error);
-    }
-    );
-  }, [])
-
+    startup()
+      .then(() => {
+        console.log('Database initialized and tasks loaded');
+      })
+      .catch((error: unknown) => {
+        console.error('Error loading tasks:', error);
+      });
+  }, []);
 
   const addTask = (task: TaskInsert) => {
     dbHelper
       .addTask(task)
       .then((result) => {
-        setTasks((prevTasks) => [...prevTasks, { ...task, id: result.lastInsertId }]);
+        if (typeof result.lastInsertId === 'number') {
+          const newId = result.lastInsertId; // now definitely a number
+          setTasks((prevTasks) => [
+            ...prevTasks,
+            {
+              ...task,
+              completed: false,
+              active: false,
+              overtime: false,
+              id: newId,
+            },
+          ]);
+        }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error('Error adding task:', error);
       });
   };
@@ -92,14 +103,19 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     // update the task in the database
 
     dbHelper
-      .updateTask({...task, ...updatedTask})
+      .updateTask({ ...task, ...updatedTask })
       .then(() => {
-        console.log('Task updated successfully',  { task: {...task, ...updatedTask}, id: taskId });
+        console.log('Task updated successfully', {
+          task: { ...task, ...updatedTask },
+          id: taskId,
+        });
       })
-      .catch((error) => {
-        console.error('Error updating task:', error, { task: {...task, ...updatedTask}, id: taskId });
+      .catch((error: unknown) => {
+        console.error('Error updating task:', error, {
+          task: { ...task, ...updatedTask },
+          id: taskId,
+        });
       });
-
   };
 
   const getTaskById = (taskId: number) => {

@@ -12,7 +12,7 @@ const AddTaskComponent = ({ className }: { className?: string }) => {
   const [taskEstimateString, setTaskEstimateString] = useState<string>('00:05');
   const [error, setError] = useState<string | null>(null);
 
-  const { addTask, tasks } = useTasks();
+  const { addTask } = useTasks();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
