@@ -1,3 +1,7 @@
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+
+
 export const TitlebarComponent = () => {
   return (
     <div
@@ -7,23 +11,13 @@ export const TitlebarComponent = () => {
       <div className="absolute left-1/2 -translate-x-1/2 text-xs select-none">
         subtle
       </div>
-      {/* <div className="titlebar-buttons" id="buttons">
-        <div className="titlebar-button " id="titlebar-minimize">
-          <img
-            src="https://api.iconify.design/mdi:window-minimize.svg"
-            alt="minimize"
-          />
-        </div>
-        <div className="titlebar-button" id="titlebar-maximize">
-          <img
-            src="https://api.iconify.design/mdi:window-maximize.svg"
-            alt="maximize"
-          />
-        </div>
-        <div className="titlebar-button" id="titlebar-close">
-          <img src="https://api.iconify.design/mdi:close.svg" alt="close" />
-        </div>
-      </div> */}
+      <div className="mx-4">
+          <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-white transition-colors" onClick={() => {
+            
+            getCurrentWindow().close();
+
+}} />
+      </div>
     </div>
   );
 };

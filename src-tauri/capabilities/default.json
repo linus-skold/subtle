@@ -15,6 +15,7 @@
     "core:window:allow-set-size",
     "fs:default",
     "fs:read-all",
-    "fs:write-all"
+    "fs:write-all",
+    "core:window:allow-close"
   ]
 }
