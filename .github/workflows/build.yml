@@ -1,13 +1,12 @@
-name: CI
+name: Build
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  build-windows:
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,17 +27,6 @@ jobs:
 
       - name: Install Node dependencies
         run: pnpm install
-      
-      - name: Install system dependencies for GTK
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-          libgtk-3-dev \
-          libglib2.0-dev \
-          libgobject-2.0-dev \
-          libatk1.0-dev \
-          libcairo2-dev \
-          pkg-config
 
       - name: Build Application
         run: pnpm tauri build
@@ -50,4 +38,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+ 
