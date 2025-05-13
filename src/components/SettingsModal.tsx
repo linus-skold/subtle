@@ -1,6 +1,4 @@
 import {
-  Button,
-  Description,
   Dialog,
   DialogPanel,
   DialogTitle,
@@ -10,23 +8,24 @@ import {
 import ToggleComponent from './ToggleComponent';
 import { useAppContext } from '@/context/AppContext';
 import { XCircleIcon } from '@heroicons/react/24/outline';
-import { useRef, useState } from 'react';
 
 const SettingsModal = ({
-  children,
   isOpen,
   onClick,
 }: {
-  children?: React.ReactNode;
   isOpen: boolean;
   onClick: (v: boolean) => void;
 }) => {
-  const { state, updateAppSettings, updateState } = useAppContext();
+  const { state, updateAppSettings } = useAppContext();
 
   const appSettings = state.appSettings;
 
   const setAlwaysOnTop = (value: boolean) => {
     updateAppSettings({ ...appSettings, alwaysOnTop: value });
+  };
+
+  const setAutoStart = (value: boolean) => {
+    updateAppSettings({ ...appSettings, autoStart: value });
   };
 
   return (
@@ -43,7 +42,7 @@ const SettingsModal = ({
           <DialogTitle as="h3" className="text-base/7 font-bold text-white">
             SETTINGS
           </DialogTitle>
-          <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={onClick} />
+          <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClick(false)} />
         </div>
 
         <div className="flex flex-col gap-2 border-t border-gray-700 pt-2 mt-2">
