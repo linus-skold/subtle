@@ -44,7 +44,7 @@ jobs:
             VERSION="dev-${GITHUB_SHA::7}"
             IS_BETA=true
           fi
-          echo "VERSION=$VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "IS_BETA=$IS_BETA" >> $GITHUB_OUTPUT
 
       - name: Build Application
@@ -54,17 +54,16 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.VERSION }}
           path: |
             ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
 
       - name: Upload GitHub Release
-        if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.version.outputs.VERSION }}
           files: |
             ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
