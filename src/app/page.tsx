@@ -21,7 +21,6 @@ import {
 import { useAppContext } from '@/context/AppContext';
 import { useTasks } from '@/context/TaskContext';
 
-import ToggleComponent from '@/components/Toggle';
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -39,6 +38,7 @@ function useWindowSize() {
 export default function Home() {
   const { state, updateState } = useAppContext();
   const { tasks, setTasks, activeTask } = useTasks();
+  const [ settingsOpen, setSettingsOpen ] = useState(false);
 
   const [width] = useWindowSize();
   useEffect(() => {
@@ -48,6 +48,11 @@ export default function Home() {
       updateState({ isCompactMode: false });
     }
   }, [width]);
+
+
+  useEffect(() => {
+    setSettingsOpen(state.isSettingsModalOpen);
+  }, [state.isSettingsModalOpen]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -67,8 +72,7 @@ export default function Home() {
         <App>
           {!state.isFocusMode && <TitlebarComponent />}
           {!state.isCompactMode && !state.isFocusMode && <SidebarComponent />}
-          <div className="flex flex-col h-full gap-4 m-4">
-            <ToggleComponent />
+          <div className="flex flex-col h-full gap-4 m-4 overflow-hidden">
             <ActivityBar />
 
             {activeTask && <ActiveTask />}
@@ -110,10 +114,8 @@ export default function Home() {
             hello world
           </div>
 
-          { state.isSettingsModalOpen && 
-          <SettingsModal>
+          <SettingsModal isOpen={settingsOpen} onClick={ () => { updateState({ isSettingsModalOpen: false })}} />
 
-          </SettingsModal> }
 
         </App>
       </SortableContext>

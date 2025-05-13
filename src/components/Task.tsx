@@ -31,8 +31,6 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
 
   const { task_name: title, estimate } = task;
 
-  console.log(task.progress)
-
   const progress = task.progress > estimate ? task.progress : estimate - task.progress;
 
 
