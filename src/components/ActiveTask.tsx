@@ -91,13 +91,12 @@ useEffect(() => {
 
   return (
     <div
-      className="font-bold text-xl"
+      className="font-bold text-xl my-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="m-4 p-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
-        <div className="p-3 bg-gray-800 rounded-lg relative h-[60px]">
-          {' '}
+      <div className="p-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
+        <div className="bg-gray-800 rounded-lg relative h-[60px]">
           <div
             className={`absolute top-0 left-0 w-full h-full flex justify-center items-center space-x-4 transition-opacity duration-200 ${
               isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
