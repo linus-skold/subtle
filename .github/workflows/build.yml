@@ -35,6 +35,7 @@ jobs:
 
       - name: Set Version Tag
         id: version
+        shell: bash
         run: |
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             VERSION=${GITHUB_REF_NAME}
