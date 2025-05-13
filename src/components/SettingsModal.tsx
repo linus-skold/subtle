@@ -55,8 +55,8 @@ const SettingsModal = ({
         />
         <ToggleComponent
           text="Auto start"
-          checked={appSettings?.alwaysOnTop}
-          onChange={setAlwaysOnTop}
+          checked={appSettings?.autoStart}
+          onChange={setAutoStart}
         />
         <ToggleComponent
           text="Always on top"
