@@ -1,12 +1,14 @@
-name: Build
+name: Build and Release
 
 on:
   push:
+    tags:
+      - 'v*'
     branches: [main]
 
 permissions:
   contents: write
-  
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -31,25 +33,40 @@ jobs:
       - name: Install Node dependencies
         run: pnpm install
 
+      - name: Set Version Tag
+        id: version
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            VERSION=${GITHUB_REF_NAME}
+            IS_BETA=false
+          else
+            VERSION="dev-${GITHUB_SHA::7}"
+            IS_BETA=true
+          fi
+          echo "VERSION=$VERSION"
+          echo "IS_BETA=$IS_BETA" >> $GITHUB_OUTPUT
+
       - name: Build Application
         run: pnpm tauri build
-      
+
+    
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifact
+          name: ${{ steps.version.outputs.version }}
           path: |
             ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
 
-      - name: Upload Release
+      - name: Upload GitHub Release
+        if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
+          tag_name: ${{ github.ref_name }}
           files: |
             ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
+          prerelease: ${{ steps.version.outputs.IS_BETA }}  # Set prerelease flag based on `main` or stable tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
- 
