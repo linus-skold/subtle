@@ -19,6 +19,7 @@ export const AppStateSchema = z.object({
   isFocusMode: z.boolean().default(false),
   isCompactMode: z.boolean().default(false),
   isSettingsModalOpen: z.boolean().default(false),
+  isTaskContextOpen: z.boolean().default(false),
   appSettings: AppSettingsSchema,
 });
 
@@ -31,6 +32,7 @@ const AppStateDefault: AppState = {
   isFocusMode: false,
   isCompactMode: false,
   isSettingsModalOpen: false,
+  isTaskContextOpen: false,
   appSettings: defaultAppSettings
 };
 

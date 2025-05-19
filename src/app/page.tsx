@@ -21,6 +21,7 @@ import {
 import { useAppContext } from '@/context/AppContext';
 import { useTasks } from '@/context/TaskContext';
 
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
