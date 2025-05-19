@@ -19,16 +19,22 @@ module.exports = {
           '0%': { transform: 'rotate(45deg)' },
           '100%': { transform: 'rotate(0deg)' },
         },
+        'pulse-out': {
+          '0%': { transform: 'scale(1)' },
+          '100%': { transform: 'scale(2)' },
+        },
       },
       animation: {
         'slide-fade-down': 'slide-fade-down 300ms ease-out forwards',
         'rotate-in': 'rotate-in 200ms ease-in forwards',
         'rotate-out': 'rotate-out 200ms ease-in forwards',
+        'pulse-out': 'pulse-out ease-out 1s',
       },
       backgroundImage: {
         'sharp-gradient-rl': 'linear-gradient(to right, #1f2937 75%, rgba(0,0,0,0) 100%)',
         'sharp-gradient-lr': 'linear-gradient(to left, #1f2937 75%, rgba(0,0,0,0) 100%)',
       },
+   
     },
   },
 };

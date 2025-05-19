@@ -89,6 +89,23 @@ useEffect(() => {
   return () => clearInterval(intervalRef.current ?? 0);
 }, [isPaused]);
 
+
+  const [isPausing, setIsPausing] = useState(false);
+
+  useEffect(() => {
+
+    const timeout = setTimeout(() => {
+      if (isPausing) {
+        setIsPaused((prev) => !prev);
+        setIsPausing(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(timeout);
+  }, [isPausing]);
+
+
+
   return (
     <div
       className="font-bold text-xl my-2"
@@ -103,10 +120,9 @@ useEffect(() => {
             }`}
           >
             <DocumentTextIcon className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors" />
-            
-            { isPaused && <PlayIcon className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors" onClick={ () => setIsPaused(!isPaused)} />}
-            
-            { !isPaused && <PauseIcon className="h-5 w-5 text-gray-400 hover:text-yellow-500 transition-colors" onClick={ () => setIsPaused(!isPaused)} />} 
+            { isPaused && <PlayIcon className={`h-5 w-5 text-gray-400 hover:text-green-500 ${isPausing ? 'animate-ping' : ''}`} onClick={ () => setIsPausing(true)} />}
+
+            { !isPaused && <PauseIcon className={`h-5 w-5 text-gray-400 hover:text-yellow-500 ${isPausing ? 'animate-ping' : ''}`} onClick={ () => setIsPausing(true)} />}
             {/* <PauseIcon className="h-5 w-5 text-gray-400 hover:text-yellow-500 transition-colors" onClick={ () => setIsPaused(!isPaused)} /> */}
             
             
