@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import { useState } from 'react';
-import { CheckCircleIcon, DocumentTextIcon, PlayIcon, QueueListIcon } from '@heroicons/react/24/outline';
+import { ArrowDownIcon, CheckCircleIcon, CheckIcon, ChevronDownIcon, DocumentTextIcon, PlayIcon, QueueListIcon } from '@heroicons/react/24/outline';
 import { useTasks } from '@/context/TaskContext';
 
 import { Task } from '@/types/task.types';
@@ -12,6 +12,8 @@ import { formatEstimate, formatProgress } from '@/utils/time.utils';
 import { useAppContext } from '@/context/AppContext';
 import TaskContextMenu from './TaskContextMenu';
 import EditTask from './EditTask';
+import DonutProgressBar from './DonutProgressBar';
+import ProgressDonut from './DonutProgressBar';
 
 const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
@@ -109,7 +111,123 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
           <p className="text-gray-400 text-sm">{formatEstimate(estimate)}</p>
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p> 
         </div>
-        <div>asdasds</div>
+        <hr className="w-full bg-gray-700 h-1 rounded-lg mt-2"/>
+        <div className="flex justify-between items-center mt-2">
+          <ProgressDonut progress={33} size={24}/>  
+            <ChevronDownIcon className="h-4 w-4 text-gray-400 inline-block mr-1" />
+          
+        </div>
+        
+        <div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div><div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+            Subtask
+          </div>
+          
+            </div>
         <div
           className="absolute top-0 left-0 w-full h-full z-10"
           {...listeners}
