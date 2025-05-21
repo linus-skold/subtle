@@ -4,6 +4,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Task, PartialTask, TaskInsert } from '@/types/task.types';
 
 import * as dbHelper from '@/utils/database.utils';
+import { PartialSubtask, Subtask, SubtaskInsert } from '@/types/subtask.types';
 
 export interface TaskContextType {
   tasks: Task[];
@@ -14,6 +15,14 @@ export interface TaskContextType {
   activeTask: number | null;
   setActiveTask: React.Dispatch<React.SetStateAction<number | null>>;
   getTaskById: (taskId: number) => Task | null;
+  getSubtasksByTaskId: (taskId: number) => Promise<Subtask[] | null>;
+  addSubtask: (
+    parentTaskId: number,
+    subtask: SubtaskInsert,
+    onAdd: () => void,
+  ) => void;
+  updateSubtask: (subtask: PartialSubtask, onChange?: () => void) => void;
+  removeSubtask: (subtaskId: number, onRemove?: () => void) => void;
 }
 
 const TaskContext = createContext<TaskContextType>({
@@ -36,6 +45,18 @@ const TaskContext = createContext<TaskContextType>({
   },
   getTaskById: () => {
     throw new Error('getTaskById function not implemented');
+  },
+  getSubtasksByTaskId: () => {
+    throw new Error('getSubtasksByTaskId function not implemented');
+  },
+  addSubtask: () => {
+    throw new Error('addSubtask function not implemented');
+  },
+  updateSubtask: () => {
+    throw new Error('updateSubtask function not implemented');
+  },
+  removeSubtask: () => {
+    throw new Error('removeSubtask function not implemented');
   },
 });
 
@@ -126,6 +147,48 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     return task;
   };
 
+  const getSubtasksByTaskId = async (taskId: number) => {
+    return dbHelper.getSubtasksByParentId(taskId);
+  };
+
+  const addSubtask = (
+    parentTaskId: number,
+    subtask: SubtaskInsert,
+    onAdd?: () => void,
+  ) => {
+    dbHelper
+      .addSubtask({ ...subtask, parent_task_id: parentTaskId })
+      .then((result) => {
+        console.log(result);
+        onAdd?.();
+      })
+      .catch((error: unknown) => {
+        console.error('Error adding subtask:', error);
+      });
+  };
+
+  const updateSubtask = (subtask: PartialSubtask, onChange?: () => void) => {
+    dbHelper
+      .updateSubtask(subtask)
+      .then(() => {
+        console.log('Subtask updated successfully', subtask);
+        onChange?.();
+      })
+      .catch((error: unknown) => {
+        console.error('Error updating subtask:', error, subtask);
+      });
+  };
+
+  const removeSubtask = (subtaskId: number, onRemove?: () => void) => {
+    dbHelper.deleteSubtask(subtaskId)
+      .then(() => {
+        console.log('Subtask removed successfully', subtaskId);
+        onRemove?.();
+      })
+      .catch((error: unknown) => {
+        console.error('Error removing subtask:', error, subtaskId);
+      });
+  };
   return (
     <TaskContext.Provider
       value={{
@@ -137,6 +200,10 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         activeTask,
         setActiveTask,
         getTaskById,
+        getSubtasksByTaskId,
+        addSubtask,
+        updateSubtask,
+        removeSubtask,
       }}
     >
       {children}
