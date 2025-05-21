@@ -5,6 +5,7 @@ module.exports = {
         primary: '#1f2937',
         secondary: '#05df72',
         accent: '#2b7fff',
+        'text-primary': '#99a1af',
       },
       keyframes: {
         'slide-fade-down': {
