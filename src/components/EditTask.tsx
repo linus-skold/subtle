@@ -30,22 +30,25 @@ const EditTask = (props: {
   }
   , [isOpen, props.subtasks]);
 
+
+  const onClose = () => {
+        onClick(false)
+        onChange?.({ subtaskData: subtasksState });
+  }
+
   return (
     <Dialog
       open={isOpen}
       as="div"
       className="fixed top-6 left-0 w-screen focus:outline-none flex min-h-full z-50"
-      onClose={() => { 
-        onClick(false)
-        onChange?.({ subtaskData: subtasksState });
-      }}
+      onClose={() => onClose()}
     >
       <DialogPanel transition className="
         w-full max-w-full bg-white/5 p-6 backdrop-blur-2xl 
         duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
         <div className="flex justify-between">
           <input value={title} onChange={(e) => setTitle(e.target.value)} />
-          <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClick(false)} />
+          <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClose()} />
         </div>
         <textarea
           className="w-full h-32 bg-gray-800 text-white p-2 rounded-lg mt-4"
