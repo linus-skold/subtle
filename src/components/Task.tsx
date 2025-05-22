@@ -18,6 +18,7 @@ import TaskContextMenu from './TaskContextMenu';
 import EditTask from './EditTask';
 import { Subtask } from '@/types/subtask.types';
 import SubtasksBlock from './SubtasksBlock';
+import { deleteTask } from '@/utils/database.utils';
 
 const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
@@ -118,7 +119,17 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
               onClick={() => setActiveTask(task.id)}
             />
 
-            <TaskContextMenu />
+            <TaskContextMenu
+              edit={openEditTask}
+              start={() => setActiveTask(task.id)}
+              complete={() => {
+                setIsCompleting(true);
+                setTimeout(() => {
+                  updateTask(task.id, { completed: true, progress });
+                }, completeTime);
+              }}
+              deleteTask={() => {}}
+            />
           </div>
         </div>
         <div className={`flex justify-between transition-opacity duration-200`}>
