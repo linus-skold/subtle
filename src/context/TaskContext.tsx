@@ -14,8 +14,8 @@ export interface TaskContextType {
   updateTask: (taskId: number, updatedTask: PartialTask) => void;
   activeTask: number | null;
   setActiveTask: React.Dispatch<React.SetStateAction<number | null>>;
-  getTaskById: (taskId: number) => Task | null;
-  getSubtasksByTaskId: (taskId: number) => Promise<Subtask[] | null>;
+  getTaskById: (taskId: number) => Task;
+  getSubtasksByTaskId: (taskId: number) => Promise<Subtask[]>;
   addSubtask: (
     parentTaskId: number,
     subtask: SubtaskInsert,
@@ -140,11 +140,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getTaskById = (taskId: number) => {
-    const task = tasks.find((task) => task.id === taskId);
-    if (!task) {
-      return null;
-    }
-    return task;
+    return tasks.find((task) => task.id === taskId);
   };
 
   const getSubtasksByTaskId = async (taskId: number) => {

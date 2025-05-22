@@ -1,6 +1,7 @@
-import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Fragment } from 'react';
 
 const TaskContextMenu = () => {
   return (
@@ -40,13 +41,16 @@ const TaskContextMenu = () => {
         </MenuItem>
         <hr className="border-gray-500 my-2" />
         <MenuItem>
-          <a
-            className="block data-focus:bg-gray-800 text-red-500 px-2 py-1.5"
-            href="#"
-            onClick={() => console.log('Delete clicked')}
-          >
-            Delete
-          </a>
+          <div className="flex items-center space-x-2">
+            <TrashIcon className="h-5 w-5 text-red-500" />
+            <a
+              className="block data-focus:bg-gray-800 text-red-500 px-2 py-1.5"
+              href="#"
+              onClick={() => console.log('Delete clicked')}
+            >
+              Delete
+            </a>
+          </div>
         </MenuItem>
       </MenuItems>
     </Menu>
