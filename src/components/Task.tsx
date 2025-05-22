@@ -57,17 +57,11 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
       const tasks = await getSubtasksByTaskId(task.id);
       if (tasks?.length === 0) return;
 
-
       setSubtasks(tasks);
     };
 
     fetchSubtasks();
   }, []);
-
-  useEffect(() => { 
-    console.log('subtasksList', subtasksList);
-  }, [subtasksList])
-
 
   return (
     <div
@@ -109,7 +103,9 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
             <QueueListIcon
               className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
               onClick={() => {
-                setSubtasks([]);
+                if (subtasksList === null) {
+                  setSubtasks([]);
+                }
               }}
             />
 
@@ -123,11 +119,6 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
             />
 
             <TaskContextMenu />
-            <EditTask
-              isOpen={editTaskOpen}
-              onClick={setEditTaskOpen}
-              taskId={task.id}
-            />
           </div>
         </div>
         <div className={`flex justify-between transition-opacity duration-200`}>
@@ -135,7 +126,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
         </div>
         <SubtasksBlock
-          subtasks={subtasksList}
+          subtasks={subtasksList ?? []}
           parentId={task.id}
           onSubtaskChange={() => {
             getSubtasksByTaskId(task.id)
@@ -147,6 +138,18 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
               });
           }}
           show={subtasksList !== null}
+        />
+
+        <EditTask
+          isOpen={editTaskOpen}
+          onClick={setEditTaskOpen}
+          taskId={task.id}
+          onChange={ ({taskData, subtaskData}) => {
+            if(subtaskData) { 
+              setSubtasks(subtaskData);
+            }
+          }}
+          subtasks={subtasksList ?? []}
         />
 
         <div
