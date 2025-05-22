@@ -116,7 +116,7 @@ const ActiveTask = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="p-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
+      <div className="p-[2px] min-h-[60px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
         <div className="bg-gray-800 rounded-lg relative">
           <div
             className={`absolute top-0 left-0 w-full h-full flex justify-center items-center space-x-4 transition-opacity duration-200 ${
@@ -155,11 +155,11 @@ const ActiveTask = () => {
           </div>
           {/* Default Content (Title & Time) */}
           <div
-            className={`w-full h-full px-3 duration-200 ${
+            className={`w-full h-full min-h-[60px] px-3 duration-200 ${
               isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
-            <div className="flex items-center justify-between w-full h-full">
+            <div className="flex items-center justify-between w-full h-full min-h-[60px]">
               <h1 className="text-white">{currentTask.current?.task_name}</h1>
               <h1 className={overtime ? 'text-yellow-600' : 'text-white'}>
                 {formatProgress(taskTimer)}
