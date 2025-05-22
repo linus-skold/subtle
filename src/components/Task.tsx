@@ -79,7 +79,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
           <h1 className="text-gray-400 text-sm">{order}</h1>
 
           <div
-            className={`overflow-hidden transition-all duration-100 ease-in-out z-20 ${
+            className={`overflow-hidden transition-all duration-100 ease-in-out z-50 ${
               isHovered ? 'w-5' : 'w-0 '
             }`}
           >
@@ -98,7 +98,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
           {/* Title with margin transition */}
           <h1 className={`text-white truncate text-base`}>{title}</h1>
           <div
-            className={`flex space-x-2 justify-end z-20 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'w-0 opacity-0'}`}
+            className={`flex space-x-2 justify-end z-50 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'w-0 opacity-0'}`}
           >
             <QueueListIcon
               className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
