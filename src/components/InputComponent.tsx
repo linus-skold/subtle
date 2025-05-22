@@ -20,6 +20,7 @@ const InputComponent = <T,>({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       onKeyDown?.(e, value as unknown as T);
+      setValue('');
     }
     if(e.key === 'Escape') {
       setValue('');
