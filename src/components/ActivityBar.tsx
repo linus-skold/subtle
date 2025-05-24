@@ -19,7 +19,10 @@ const ActivityBar = () => {
   return (
     <div className="">
       <div className="flex justify-between">
+        <div className="flex items-center">
+          <img src="/logo.png" alt="Logo" className="h-8 w-8 mr-2" />
         <h1 className="text-xl font-bold">Today</h1>
+        </div>
         <div className="flex space-x-4">
           <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 cursor-pointer" onClick={() => updateState({ isSettingsModalOpen: !state.isSettingsModalOpen })} />
           <HomeIcon className="h-6 w-6 text-gray-400 hover:text-gray-600 cursor-pointer" />
