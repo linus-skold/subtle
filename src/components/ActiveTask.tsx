@@ -9,7 +9,7 @@ import { useTasks } from '@/context/TaskContext';
 import { formatProgress } from '@/utils/time.utils';
 import { Task } from '@/types/task.types';
 import EditTask from './EditTask';
-import { getSubtasksByParentId } from '@/utils/database.utils';
+import * as dbHelper from '@/utils/database.utils';
 
 const ActiveTask = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -64,7 +64,7 @@ const ActiveTask = () => {
       overtimeRef.current = isOvertime;
     }
 
-    getSubtasksByParentId(activeTask).then((result) => {
+    dbHelper.subtask.getSubtasksByParentId(activeTask).then((result) => {
       setSubtasks(result);
     }).catch((error: unknown) => {
       console.error('Error fetching subtasks:', error);
@@ -160,13 +160,12 @@ const ActiveTask = () => {
             }`}
           >
             <div className="flex items-center justify-between w-full h-full min-h-[60px]">
-              <h1 className="text-white">{currentTask.current?.task_name}</h1>
+              <h1 className="text-white">{currentTask.current?.title}</h1>
               <h1 className={overtime ? 'text-yellow-600' : 'text-white'}>
                 {formatProgress(taskTimer)}
               </h1>
             </div>
             <div className='flex'>
-            
             </div>
           </div>
         </div>

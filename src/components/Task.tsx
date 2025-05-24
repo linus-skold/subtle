@@ -18,16 +18,28 @@ import TaskContextMenu from './TaskContextMenu';
 import EditTask from './EditTask';
 import { Subtask } from '@/types/subtask.types';
 import SubtasksBlock from './SubtasksBlock';
-import { deleteTask } from '@/utils/database.utils';
 
-const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
+const TaskComponent = (props: {
+  order: number;
+  task: Task;
+  taskId: number;
+  onChange?: (task: Task) => void;
+  onDelete?: (taskId: number) => void;
+  onComplete?: (taskId: number) => void;
+  onStart?: (taskId: number) => void;
+}) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
-    id: task.id,
+    id: props.taskId,
   });
+
+  const { order } = props;
 
   const [isHovered, setIsHovered] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
+  const [task, setTask] = useState<Task | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
 
   const { updateTask, setActiveTask, getSubtasksByTaskId } = useTasks();
 
@@ -36,11 +48,6 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
   };
 
   const completeTime = 200;
-
-  const { task_name: title, estimate } = task;
-
-  const progress =
-    task.progress > estimate ? task.progress : estimate - task.progress;
 
   const checkIsHovered = (value: boolean) => {
     setIsHovered(value);
@@ -51,18 +58,24 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
     checkIsHovered(false);
   };
 
-  const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
-
   useEffect(() => {
-    const fetchSubtasks = async () => {
-      const tasks = await getSubtasksByTaskId(task.id);
-      if (tasks?.length === 0) return;
+    if (props.task) {
+      setTask(props.task);
+      setProgress(props.task.progress);
+      const fetchSubtasks = async () => {
+        const tasks = await getSubtasksByTaskId(props.task.id);
+        if (tasks?.length === 0) return;
 
-      setSubtasks(tasks);
-    };
+        setSubtasks(tasks);
+      };
 
-    fetchSubtasks();
-  }, []);
+      fetchSubtasks();
+    }
+  }, [props.task]);
+
+  if (!task) {
+    return <></>;
+  }
 
   return (
     <div
@@ -72,7 +85,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
       onMouseEnter={() => checkIsHovered(!editTaskOpen && true)}
     >
       <div
-        className={`min-h-[calc(60px)]  bg-gray-800 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
+        className={`bg-gray-800 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
           isCompleting ? '-translate-y-10 opacity-0' : ''
         }`}
       >
@@ -97,7 +110,7 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
           </div>
 
           {/* Title with margin transition */}
-          <h1 className={`text-white truncate text-base`}>{title}</h1>
+          <h1 className={`text-white truncate text-base`}>{task?.title}</h1>
           <div
             className={`flex space-x-2 justify-end z-50 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'w-0 opacity-0'}`}
           >
@@ -128,12 +141,14 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
                   updateTask(task.id, { completed: true, progress });
                 }, completeTime);
               }}
-              deleteTask={() => {}}
+              deleteTask={() => props.onDelete?.(task.id)}
             />
           </div>
         </div>
         <div className={`flex justify-between transition-opacity duration-200`}>
-          <p className="text-gray-400 text-sm">{formatEstimate(estimate)}</p>
+          <p className="text-gray-400 text-sm">
+            {formatEstimate(task?.estimate)}
+          </p>
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
         </div>
         <SubtasksBlock
@@ -154,10 +169,25 @@ const TaskComponent = ({ order, task }: { order: number; task: Task }) => {
         <EditTask
           isOpen={editTaskOpen}
           onClick={setEditTaskOpen}
-          taskId={task.id}
-          onChange={ ({taskData, subtaskData}) => {
-            if(subtaskData) { 
+          task={task}
+          onChange={({ taskData, subtaskData }) => {
+            if (subtaskData) {
               setSubtasks(subtaskData);
+            }
+            if (taskData) {
+              setTask((prev) => {
+                if (prev) {
+                  return { ...prev, ...taskData };
+                }
+                return null;
+              });
+              props.onChange?.({ ...task, ...taskData });
+              updateTask(task.id, {
+                ...taskData,
+                progress: task.progress,
+                completed: task.completed,
+                active: task.active,
+              });
             }
           }}
           subtasks={subtasksList ?? []}

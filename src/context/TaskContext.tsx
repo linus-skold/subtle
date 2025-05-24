@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 import { Task, PartialTask, TaskInsert } from '@/types/task.types';
 
@@ -9,6 +9,7 @@ import { PartialSubtask, Subtask, SubtaskInsert } from '@/types/subtask.types';
 export interface TaskContextType {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  onStartup: () => Promise<void>;
   addTask: (task: TaskInsert) => void;
   removeTask: (taskId: number) => void;
   updateTask: (taskId: number, updatedTask: PartialTask) => void;
@@ -29,6 +30,9 @@ const TaskContext = createContext<TaskContextType>({
   tasks: [],
   setTasks: () => {
     throw new Error('setTasks function not implemented');
+  },
+  onStartup: () => {
+    throw new Error('loadTasks function not implemented');
   },
   addTask: () => {
     throw new Error('addTask function not implemented');
@@ -64,24 +68,18 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
-  useEffect(() => {
-    const startup = async () => {
-      await dbHelper.setDatabase();
-      await dbHelper.createTable();
-      const tasks = await dbHelper.loadTasks();
+
+  const onStartup = async () => {
+    try {
+      const tasks = await dbHelper.task.loadTasks();
       setTasks(tasks);
-    };
-    startup()
-      .then(() => {
-        console.log('Database initialized and tasks loaded');
-      })
-      .catch((error: unknown) => {
-        console.error('Error loading tasks:', error);
-      });
-  }, []);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
+  };
 
   const addTask = (task: TaskInsert) => {
-    dbHelper
+    dbHelper.task
       .addTask(task)
       .then((result) => {
         if (typeof result.lastInsertId === 'number') {
@@ -123,7 +121,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     }
     // update the task in the database
 
-    dbHelper
+    dbHelper.task
       .updateTask({ ...task, ...updatedTask })
       .then(() => {
         console.log('Task updated successfully', {
@@ -144,7 +142,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getSubtasksByTaskId = async (taskId: number) => {
-    return dbHelper.getSubtasksByParentId(taskId);
+    return dbHelper.subtask.getSubtasksByParentId(taskId);
   };
 
   const addSubtask = (
@@ -152,7 +150,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     subtask: SubtaskInsert,
     onAdd?: () => void,
   ) => {
-    dbHelper
+    dbHelper.subtask
       .addSubtask({ ...subtask, parent_task_id: parentTaskId })
       .then((result) => {
         console.log(result);
@@ -164,7 +162,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateSubtask = (subtask: PartialSubtask, onChange?: () => void) => {
-    dbHelper
+    dbHelper.subtask
       .updateSubtask(subtask)
       .then(() => {
         console.log('Subtask updated successfully', subtask);
@@ -176,7 +174,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeSubtask = (subtaskId: number, onRemove?: () => void) => {
-    dbHelper.deleteSubtask(subtaskId)
+    dbHelper.subtask.deleteSubtask(subtaskId)
       .then(() => {
         console.log('Subtask removed successfully', subtaskId);
         onRemove?.();
@@ -190,6 +188,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         tasks,
         setTasks,
+        onStartup,
         addTask,
         removeTask,
         updateTask,

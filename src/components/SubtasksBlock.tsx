@@ -38,7 +38,7 @@ const SubtasksBlock = ({
   }
 
   return (
-    <div>
+    <div className="">
       <hr className="w-full bg-gray-700 h-1 rounded-lg mt-2" />
       <div className="relative flex justify-between items-center mt-2 z-20">
         <div className="flex items-center space-x-2">
