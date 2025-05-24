@@ -28,10 +28,15 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
     }
 
     addTask({
-      task_name: taskName,
+      title: taskName,
       estimate: parsedEstimate * 60,
       progress: 0,
       completed: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      description: '',
+      archived: false,
+      task_list_id: 0,
     });
 
     setTaskName('');
@@ -43,7 +48,11 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
     <div className={className}>
       <button
         className="flex cursor-pointer"
-        onClick={() => setAddingTask(!addingTask)}
+        onClick={() => { 
+          setAddingTask(!addingTask); 
+          setError(null);
+          setTaskName('');
+        }}
       >
         <PlusIcon
           className={`h-6 w-6 inline-block transition-transform duration-200 ${

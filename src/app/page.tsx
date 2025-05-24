@@ -21,7 +21,8 @@ import {
 import { useAppContext } from '@/context/AppContext';
 import { useTasks } from '@/context/TaskContext';
 
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import * as dbHelper from '@/utils/database.utils';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -38,8 +39,33 @@ function useWindowSize() {
 
 export default function Home() {
   const { state, updateState } = useAppContext();
-  const { tasks, setTasks, activeTask } = useTasks();
+  const taskContext = useTasks();
+  const { tasks, setTasks, activeTask } = taskContext;
   const [ settingsOpen, setSettingsOpen ] = useState(false);
+  const [ isStartup, setIsStartup ] = useState(true);
+
+  useEffect(() => {
+    const startup = async () => {
+      try { 
+        await dbHelper.sqlite.setDatabase();
+        await dbHelper.task.createTable();
+        await dbHelper.subtask.createSubtaskTable();
+        await dbHelper.taskList.createListTable();
+        await taskContext.onStartup();
+        setIsStartup(false);
+
+      } catch (error) {
+        console.error('Error during database initialization:', error);
+      }
+    }
+
+    if (isStartup) {
+      startup();
+    }
+  }, [isStartup]);
+
+
+
 
   const [width] = useWindowSize();
   useEffect(() => {
@@ -49,7 +75,6 @@ export default function Home() {
       updateState({ isCompactMode: false });
     }
   }, [width]);
-
 
   useEffect(() => {
     setSettingsOpen(state.isSettingsModalOpen);
@@ -67,57 +92,58 @@ export default function Home() {
     }
   }
 
+  if( isStartup ) {
+    return (
+    <div className='flex items-center justify-center h-screen'>
+      <LoadingSpinner />
+    </div>
+    )
+  }
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <App>
           {!state.isFocusMode && <TitlebarComponent />}
           {!state.isCompactMode && !state.isFocusMode && <SidebarComponent />}
-          <div className="flex flex-col h-full gap-4 m-4 overflow-hidden">
+          <div className="flex flex-col h-full gap-4 m-4 ">
             <ActivityBar />
 
             {activeTask && <ActiveTask />}
-            <TaskList
-              className="overflow-y-scroll gap-2 flex flex-col min-h-[calc(68px_*_5)] pr-2
-            [&::-webkit-scrollbar]:w-[2px] 
-            [&::-webkit-scrollbar-track]:bg-gray-100
-            [&::-webkit-scrollbar-thumb]:bg-gray-300
-            dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-            dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
-            >
+            <TaskList maxHeight="50vh">
               {tasks.length > 0 &&
                 tasks
                   .filter((task) => !task.completed && !task.active)
                   .map((task, index) => (
-                    <Task key={task.id} order={index + 1} task={task} />
+                    <Task
+                      key={task.id}
+                      order={index + 1}
+                      task={task}
+                      taskId={task.id}
+                    />
                   ))}
             </TaskList>
             <AddTaskComponent className="flex flex-col gap-2">
-              <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full">
-                {' '}
-              </div>
+              <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
             </AddTaskComponent>
 
-            <TaskList
-              className="gap-2 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-[2px] [&::-webkit-scrollbar-track]:bg-gray-100
-  [&::-webkit-scrollbar-thumb]:bg-gray-300
-  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 pr-2"
-            >
+            <TaskList maxHeight="50vh">
               {tasks.length > 0 &&
                 tasks
                   .filter((task) => task.completed)
                   .map((task) => <CompletedTask key={task.id} task={task} />)}
             </TaskList>
+            <div className="bottom-0 left-0 w-full h-8 bg-[var(--background)] absolute items-center justify-center flex">
+              <p className="text-sm">Just a simple task manager</p>
+            </div>
           </div>
 
-          <div className="bottom-0 left-0 w-full h-8 bg-[var(--background)] absolute items-center justify-center flex">
-            hello world
-          </div>
-
-          <SettingsModal isOpen={settingsOpen} onClick={ () => { updateState({ isSettingsModalOpen: false })}} />
-
-
+          <SettingsModal
+            isOpen={settingsOpen}
+            onClick={() => {
+              updateState({ isSettingsModalOpen: false });
+            }}
+          />
         </App>
       </SortableContext>
     </DndContext>

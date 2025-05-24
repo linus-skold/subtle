@@ -10,18 +10,20 @@ import SubtasksBlock from './SubtasksBlock';
 import { PartialTask } from '@/types/task.types';
 
 const EditTask = (props: {
+  task: PartialTask;
   isOpen: boolean;
   onClick: (v: boolean) => void;
-  taskId: number;
   onChange?: ({taskData, subtaskData}:{taskData?: PartialTask, subtaskData?: Subtask[]}) => void;
   subtasks?: Subtask[];
 }) => {
-  const { isOpen, onClick, taskId, onChange } = props;
+  const { isOpen, onClick, onChange, task } = props;
 
-  const { getTaskById, getSubtasksByTaskId } = useTasks();
-  const task = getTaskById(taskId);
-  const { task_name: title, estimate } = task;
+  const { getSubtasksByTaskId } = useTasks();
+
+  const { title, estimate } = task;
   const [ subtasksState, setSubtasks ] = useState<Subtask[]>([]);
+
+  const [ taskName, setTaskName ] = useState<string>(title);
 
   useEffect(() => {
     if (isOpen && props.subtasks) {
@@ -47,7 +49,10 @@ const EditTask = (props: {
         w-full max-w-full bg-white/5 p-6 backdrop-blur-2xl 
         duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
         <div className="flex justify-between">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input value={taskName} onChange={(e) => {
+            setTaskName(e.target.value);
+            onChange?.({ taskData: { title: e.target.value } });
+          }} />
           <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClose()} />
         </div>
         <textarea

@@ -2,12 +2,17 @@ import { z } from 'zod';
 
 export const TaskSchema = z.object({
   id: z.number(),
-  task_name: z.string(),
+  title: z.string(),
   estimate: z.number().default(0),
   progress: z.number().default(0),
   completed: z.boolean().default(false),
   active: z.boolean().default(false),
   overtime: z.boolean().default(false),
+  created_at: z.string().default(new Date().toISOString()),
+  updated_at: z.string().default(new Date().toISOString()),
+  description: z.string().default(''),
+  archived: z.boolean().default(false),
+  task_list_id: z.number().default(0),
 });
 
 export const PartialTaskSchema = TaskSchema.partial();
