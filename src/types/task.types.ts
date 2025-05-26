@@ -13,6 +13,8 @@ export const TaskSchema = z.object({
   description: z.string().default(''),
   archived: z.boolean().default(false),
   task_list_id: z.number().default(0),
+  tags: z.array(z.string()).default([]),
+  priority: z.enum(['none', 'low', 'medium', 'high']).default('none'),
 });
 
 export const PartialTaskSchema = TaskSchema.partial();
