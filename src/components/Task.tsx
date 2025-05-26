@@ -18,6 +18,7 @@ import TaskContextMenu from './TaskContextMenu';
 import EditTask from './EditTask';
 import { Subtask } from '@/types/subtask.types';
 import SubtasksBlock from './SubtasksBlock';
+import ChipComponent from './ChipComponent';
 
 const TaskComponent = (props: {
   order: number;
@@ -37,6 +38,7 @@ const TaskComponent = (props: {
   const [isHovered, setIsHovered] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [task, setTask] = useState<Task | null>(null);
   const [progress, setProgress] = useState(0);
   const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
@@ -73,6 +75,13 @@ const TaskComponent = (props: {
     }
   }, [props.task]);
 
+  useEffect(() => {
+    if(!contextMenuOpen) {
+      setIsHovered(false);
+    }
+  }, [contextMenuOpen])
+
+
   if (!task) {
     return <></>;
   }
@@ -81,7 +90,7 @@ const TaskComponent = (props: {
     <div
       ref={setNodeRef}
       style={style}
-      onMouseLeave={() => checkIsHovered(false)}
+      onMouseLeave={() => checkIsHovered(contextMenuOpen)}
       onMouseEnter={() => checkIsHovered(!editTaskOpen && true)}
     >
       <div
@@ -142,6 +151,8 @@ const TaskComponent = (props: {
                 }, completeTime);
               }}
               deleteTask={() => props.onDelete?.(task.id)}
+              onClose={() => setContextMenuOpen(false)}
+              onClick={() => setContextMenuOpen(true)}
             />
           </div>
         </div>
@@ -151,6 +162,13 @@ const TaskComponent = (props: {
           </p>
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
         </div>
+        {/* <div className="flex flex-wrap gap-2 mt-2">
+          <ChipComponent label="Tag A" index={0} />
+          <ChipComponent label="Tag B" index={1} />
+          <ChipComponent label="Tag C" index={2} />
+          <ChipComponent label="Tag D" index={3} />
+        </div> */}
+
         <SubtasksBlock
           subtasks={subtasksList ?? []}
           parentId={task.id}
