@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import SubtasksBlock from './SubtasksBlock';
 import { PartialTask } from '@/types/task.types';
 
+
 const EditTask = (props: {
   task: PartialTask;
   isOpen: boolean;
@@ -17,25 +18,25 @@ const EditTask = (props: {
   subtasks?: Subtask[];
 }) => {
   const { isOpen, onClick, onChange, task } = props;
-
-  const { getSubtasksByTaskId } = useTasks();
-
-  const { title, estimate } = task;
+  const { title, estimate, description } = task;
+  const  [ taskDescription, setTaskDescription ] = useState<string>(description);
   const [ subtasksState, setSubtasks ] = useState<Subtask[]>([]);
-
   const [ taskName, setTaskName ] = useState<string>(title);
+  
+  const { getSubtasksByTaskId } = useTasks();
 
   useEffect(() => {
     if (isOpen && props.subtasks) {
       setSubtasks(props.subtasks);
     }
   }
-  , [isOpen, props.subtasks]);
+  , [isOpen, props.subtasks ]);
+
 
 
   const onClose = () => {
         onClick(false)
-        onChange?.({ subtaskData: subtasksState });
+        onChange?.({ subtaskData: subtasksState, taskData: { title: taskName, description: taskDescription } });
   }
 
   return (
@@ -49,15 +50,18 @@ const EditTask = (props: {
         w-full max-w-full bg-white/5 p-6 backdrop-blur-2xl 
         duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
         <div className="flex justify-between">
-          <input value={taskName} onChange={(e) => {
+          <input className="w-full focus:outline-hidden focus:border-green-400 border-b-2 border-gray-600" value={taskName} onChange={(e) => {
             setTaskName(e.target.value);
-            onChange?.({ taskData: { title: e.target.value } });
           }} />
           <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClose()} />
         </div>
         <textarea
           className="w-full h-32 bg-gray-800 text-white p-2 rounded-lg mt-4"
           placeholder="Edit task description"
+          value={taskDescription}
+          onChange={(e) => {
+            setTaskDescription(e.target.value);
+          }}
         ></textarea>
 
         <SubtasksBlock
