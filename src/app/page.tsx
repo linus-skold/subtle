@@ -40,7 +40,7 @@ function useWindowSize() {
 export default function Home() {
   const { state, updateState } = useAppContext();
   const taskContext = useTasks();
-  const { tasks, setTasks, activeTask } = taskContext;
+  const { tasks, removeTask, setTasks, activeTask } = taskContext;
   const [ settingsOpen, setSettingsOpen ] = useState(false);
   const [ isStartup, setIsStartup ] = useState(true);
 
@@ -124,6 +124,9 @@ export default function Home() {
                       order={index + 1}
                       task={task}
                       taskId={task.id}
+                      onDelete={() => {
+                        removeTask(task.id);
+                      }}
                     />
                   ))}
             </TaskList>

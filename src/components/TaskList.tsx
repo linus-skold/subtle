@@ -8,6 +8,10 @@ const TaskList = ({ children, className, maxHeight }: { children: React.ReactNod
     opacity: isOver ? 0.5 : 1,
   };
 
+
+  
+
+
   return (
     <div className={`task-list overflow-y-scroll gap-2 flex flex-col max-h-[${maxHeight}] pr-2
             [&::-webkit-scrollbar]:w-[2px] 

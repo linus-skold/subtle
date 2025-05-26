@@ -25,7 +25,7 @@ const TaskComponent = (props: {
   task: Task;
   taskId: number;
   onChange?: (task: Task) => void;
-  onDelete?: (taskId: number) => void;
+  onDelete?: () => void;
   onComplete?: (taskId: number) => void;
   onStart?: (taskId: number) => void;
 }) => {
@@ -156,7 +156,7 @@ const TaskComponent = (props: {
           updateTask(task.id, { completed: true, progress });
         }, completeTime);
       }}
-      deleteTask={() => props.onDelete?.(task.id)}
+      deleteTask={() => props.onDelete?.()}
       onClose={() => setContextMenuOpen(false)}
       onClick={() => setContextMenuOpen(true)}
     />

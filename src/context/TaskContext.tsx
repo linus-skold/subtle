@@ -104,6 +104,15 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const removeTask = (taskId: number) => {
     const updatedTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(updatedTasks);
+
+    dbHelper.task
+      .deleteTask(taskId)
+      .then(() => {
+        console.log('Task removed successfully:', taskId);
+      })
+      .catch((error: unknown) => {
+        console.error('Error removing task:', error, taskId);
+      });
   };
 
   const updateTask = (taskId: number, updatedTask: PartialTask) => {

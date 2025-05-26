@@ -67,12 +67,11 @@ const TaskContextMenu = ({
               </MenuItem>
               <hr className="border-gray-500 my-2" />
               <MenuItem>
-                <div className="flex items-center space-x-2 data-focus:bg-gray-800">
+                <div className="flex items-center space-x-2 data-focus:bg-gray-800" onClick={deleteTask}>
                   <TrashIcon className="h-5 w-5 text-red-500" />
                   <a
                     className="block data-focus:bg-gray-800 text-red-500 px-2 py-1.5"
                     href="#"
-                    onClick={deleteTask}
                   >
                     Delete
                   </a>
