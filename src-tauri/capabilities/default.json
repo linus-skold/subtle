@@ -16,6 +16,8 @@
     "fs:default",
     "fs:read-all",
     "fs:write-all",
-    "core:window:allow-close"
+    "core:window:allow-close",
+    "shell:default",
+    "opener:default"
   ]
 }
