@@ -52,7 +52,11 @@ export default function Home() {
         await dbHelper.subtask.createSubtaskTable();
         await dbHelper.taskList.createListTable();
         await taskContext.onStartup();
-        setIsStartup(false);
+
+        setTimeout(() => {
+          // Simulate a delay for startup
+          setIsStartup(false);
+        }, 1000);
 
       } catch (error) {
         console.error('Error during database initialization:', error);
