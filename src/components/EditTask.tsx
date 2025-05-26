@@ -1,74 +1,112 @@
 import { useTasks } from '@/context/TaskContext';
 import { Subtask } from '@/types/subtask.types';
-import {
-  Dialog,
-  DialogPanel,
-} from '@headlessui/react';
+import { Dialog, DialogPanel } from '@headlessui/react';
 import { XCircleIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import SubtasksBlock from './SubtasksBlock';
 import { PartialTask } from '@/types/task.types';
-
+import Link from './Link';
 
 const EditTask = (props: {
   task: PartialTask;
-  isOpen: boolean;
+  open: boolean;
   onClick: (v: boolean) => void;
-  onChange?: ({taskData, subtaskData}:{taskData?: PartialTask, subtaskData?: Subtask[]}) => void;
+  onChange?: ({
+    taskData,
+    subtaskData,
+  }: {
+    taskData?: PartialTask;
+    subtaskData?: Subtask[];
+  }) => void;
   subtasks?: Subtask[];
 }) => {
-  const { isOpen, onClick, onChange, task } = props;
-  const { title, estimate, description } = task;
-  const  [ taskDescription, setTaskDescription ] = useState<string>(description);
-  const [ subtasksState, setSubtasks ] = useState<Subtask[]>([]);
-  const [ taskName, setTaskName ] = useState<string>(title);
-  
+  const { open, onClick, onChange } = props;
+  const [task, setTask] = useState<PartialTask>();
+  const [subtasksState, setSubtasks] = useState<Subtask[]>([]);
   const { getSubtasksByTaskId } = useTasks();
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (isOpen && props.subtasks) {
+    if (!open || wasOpen.current) return;
+    if (open && props.subtasks) {
       setSubtasks(props.subtasks);
     }
-  }
-  , [isOpen, props.subtasks ]);
-
-
+    if (open && props.task) {
+      setTask(props.task);
+    }
+    if (open && !wasOpen.current) {
+      wasOpen.current = true;
+    }
+  }, [open, props.subtasks, props.task]);
 
   const onClose = () => {
-        onClick(false)
-        onChange?.({ subtaskData: subtasksState, taskData: { title: taskName, description: taskDescription } });
-  }
+    onClick(false);
+    onChange?.({ subtaskData: subtasksState, taskData: task });
+  };
+
+  const getUrlsFromText = (text: string): string[] => {
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    const urls = text.match(urlRegex);
+    return urls ? urls : [];
+  };
 
   return (
     <Dialog
-      open={isOpen}
+      open={open}
       as="div"
       className="fixed top-6 left-0 w-screen focus:outline-none flex min-h-full z-50"
-      onClose={() => onClose()}
+      onClose={onClose}
     >
-      <DialogPanel transition className="
+      <DialogPanel
+        transition
+        className="
         w-full max-w-full bg-white/5 p-6 backdrop-blur-2xl 
-        duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
+        duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
+      >
         <div className="flex justify-between">
-          <input className="w-full focus:outline-hidden focus:border-green-400 border-b-2 border-gray-600" value={taskName} onChange={(e) => {
-            setTaskName(e.target.value);
-          }} />
-          <XCircleIcon className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors" onClick={() => onClose()} />
+          <input
+            className="w-full focus:outline-hidden focus:border-green-400 border-b-2 border-gray-600"
+            value={task?.title}
+            onChange={(e) => {
+              setTask((prev) => {
+                if (prev) {
+                  return { ...prev, title: e.target.value };
+                }
+                return null;
+              });
+            }}
+          />
+          <XCircleIcon
+            className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors"
+            onClick={() => onClose()}
+          />
         </div>
         <textarea
           className="w-full h-32 bg-gray-800 text-white p-2 rounded-lg mt-4"
           placeholder="Edit task description"
-          value={taskDescription}
+          value={task?.description}
           onChange={(e) => {
-            setTaskDescription(e.target.value);
+            setTask((prev) => {
+              if (prev) {
+                return { ...prev, description: e.target.value };
+              }
+              return null;
+            });
           }}
         ></textarea>
+        <ul>
+          {getUrlsFromText(task?.description || '').map((url, index) => (
+            <li key={index} className="text-blue-400 hover:underline">
+              <Link href={url}>{url}</Link>
+            </li>
+          ))}
+        </ul>
 
         <SubtasksBlock
           subtasks={subtasksState}
-          parentId={task.id}
+          parentId={task?.id}
           onSubtaskChange={() => {
-            getSubtasksByTaskId(task.id)
+            getSubtasksByTaskId(task?.id)
               .then((tasks) => {
                 setSubtasks(tasks);
               })
@@ -79,8 +117,6 @@ const EditTask = (props: {
           show={subtasksState !== null}
           expanded={true}
         />
-
-        
       </DialogPanel>
     </Dialog>
   );

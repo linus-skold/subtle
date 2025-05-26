@@ -185,7 +185,7 @@ const TaskComponent = (props: {
         />
 
         <EditTask
-          isOpen={editTaskOpen}
+          open={editTaskOpen}
           onClick={setEditTaskOpen}
           task={task}
           onChange={({ taskData, subtaskData }) => {

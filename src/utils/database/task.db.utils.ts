@@ -53,8 +53,8 @@ export const addTask = async (task: TaskInsert) => {
 export const updateTask = async (task: PartialDatabaseTask) => {
   const database = getDatabase();
   await database.execute(
-    `UPDATE ${tableName} SET title = ?, estimate = ?, progress = ?, completed = ? WHERE id = ?`,
-    [task.title, task.estimate, task.progress, task.completed, task.id],
+    `UPDATE ${tableName} SET title = ?, estimate = ?, progress = ?, completed = ?, description = ?, archived = ?, task_list_id = ?, tags = ?, priority = ? WHERE id = ?`,
+    [task.title, task.estimate, task.progress, task.completed, task.description, task.archived, task.task_list_id, JSON.stringify(task.tags), task.priority, task.id],
   );
 };
 
@@ -73,7 +73,6 @@ export const deleteTask = async (id: number) => {
 
 export const loadTasks = async (): Promise<Task[]> => {
   const database = getDatabase();
-  console.log(database);
   const result: TaskDatabaseType[] = await database.select(
     `SELECT * FROM ${tableName}`,
   );

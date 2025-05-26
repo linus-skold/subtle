@@ -124,10 +124,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.task
       .updateTask({ ...task, ...updatedTask })
       .then(() => {
-        console.log('Task updated successfully', {
-          task: { ...task, ...updatedTask },
-          id: taskId,
-        });
+
       })
       .catch((error: unknown) => {
         console.error('Error updating task:', error, {
@@ -153,7 +150,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.subtask
       .addSubtask({ ...subtask, parent_task_id: parentTaskId })
       .then((result) => {
-        console.log(result);
         onAdd?.();
       })
       .catch((error: unknown) => {
@@ -165,7 +161,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.subtask
       .updateSubtask(subtask)
       .then(() => {
-        console.log('Subtask updated successfully', subtask);
         onChange?.();
       })
       .catch((error: unknown) => {
@@ -176,7 +171,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const removeSubtask = (subtaskId: number, onRemove?: () => void) => {
     dbHelper.subtask.deleteSubtask(subtaskId)
       .then(() => {
-        console.log('Subtask removed successfully', subtaskId);
         onRemove?.();
       })
       .catch((error: unknown) => {
