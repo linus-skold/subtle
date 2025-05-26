@@ -32,7 +32,9 @@ export const createTable = async () => {
       completed_at TEXT,
       created_at TEXT DEFAULT (datetime('now', 'localtime')),
       updated_at TEXT DEFAULT (datetime('now', 'localtime') ),
-      task_list_id INTEGER
+      task_list_id INTEGER,
+      tags TEXT DEFAULT '[]',
+      priority TEXT DEFAULT 'none'
       )`);
     } catch (error) {
       console.error('Error creating tasks table:', error);
@@ -44,8 +46,8 @@ export const addTask = async (task: TaskInsert) => {
   const database = getDatabase();
   await createTable();
   return await database.execute(
-    `INSERT INTO ${tableName} (title, estimate, progress, completed, description, archived, created_at, updated_at, task_list_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [task.title, task.estimate, task.progress, task.completed, task.description, task.archived, task.created_at, task.updated_at, task.task_list_id],
+    `INSERT INTO ${tableName} (title, estimate, progress, completed, description, archived, created_at, updated_at, task_list_id, tags, priority) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [task.title, task.estimate, task.progress, task.completed, task.description, task.archived, task.created_at, task.updated_at, task.task_list_id, JSON.stringify(task.tags), task.priority],
   );
 };
 export const updateTask = async (task: PartialDatabaseTask) => {
@@ -78,6 +80,8 @@ export const loadTasks = async (): Promise<Task[]> => {
   const parsed = z.array(TaskSchema).parse(
     result.map((task) => ({
       ...task,
+      tags: task.tags ? JSON.parse(task.tags) : [],
+      priority: task.priority || 'none',
       completed: task.completed === 'true' ? true : false,
       archived: task.archived === 'true' ? true : false,
     })),
