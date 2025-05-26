@@ -25,7 +25,6 @@ const TaskContextMenu = ({
       {({ open }) => {
         useEffect(() => {
           if(wasOpen.current && !open) {
-            console.log('Menu closed');
             onClose?.();
           }
           wasOpen.current = open;

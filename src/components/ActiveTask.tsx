@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTasks } from '@/context/TaskContext';
 import { formatProgress } from '@/utils/time.utils';
-import { Task } from '@/types/task.types';
+import { Task, PartialTask, PartialTaskSchema } from '@/types/task.types';
 import EditTask from './EditTask';
 import * as dbHelper from '@/utils/database.utils';
 
@@ -16,8 +16,8 @@ const ActiveTask = () => {
 
   const { activeTask, getTaskById, updateTask, setActiveTask } = useTasks();
   const [isPaused, setIsPaused] = useState(false);
-  const [ editTaskOpen, setEditTaskOpen ] = useState(false);
-  const [ subtasks, setSubtasks ] = useState([]);
+  const [editTaskOpen, setEditTaskOpen] = useState(false);
+  const [subtasks, setSubtasks] = useState([]);
   const intervalRef = useRef<number | null>(null);
 
   const currentTask = useRef<Task | null>(null);
@@ -64,12 +64,14 @@ const ActiveTask = () => {
       overtimeRef.current = isOvertime;
     }
 
-    dbHelper.subtask.getSubtasksByParentId(activeTask).then((result) => {
-      setSubtasks(result);
-    }).catch((error: unknown) => {
-      console.error('Error fetching subtasks:', error);
-    });
-
+    dbHelper.subtask
+      .getSubtasksByParentId(activeTask)
+      .then((result) => {
+        setSubtasks(result);
+      })
+      .catch((error: unknown) => {
+        console.error('Error fetching subtasks:', error);
+      });
 
     previousTaskId.current = activeTask;
   }, [activeTask]);
@@ -123,7 +125,10 @@ const ActiveTask = () => {
               isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
-            <DocumentTextIcon className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors" onClick={() => setEditTaskOpen(true)} />
+            <DocumentTextIcon
+              className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
+              onClick={() => setEditTaskOpen(true)}
+            />
             {isPaused && (
               <PlayIcon
                 className={`h-5 w-5 text-gray-400 hover:text-green-500 ${isPausing ? 'animate-ping' : ''}`}
@@ -165,18 +170,22 @@ const ActiveTask = () => {
                 {formatProgress(taskTimer)}
               </h1>
             </div>
-            <div className='flex'>
-            </div>
+            <div className="flex"></div>
           </div>
         </div>
       </div>
-      <EditTask 
-        isOpen={editTaskOpen}
-        taskId={currentTask.current?.id ?? 0}
+      <EditTask
+        open={editTaskOpen}
+        task={PartialTaskSchema.parse(currentTask.current)}
         onClick={(v) => setEditTaskOpen(v)}
-        onChange={({ subtaskData }) => {
+        onChange={({ taskData, subtaskData }) => {
           if (subtaskData) {
             setSubtasks(subtaskData);
+          }
+          if (taskData) {
+            updateTask(activeTask, {
+              ...taskData,
+            });
           }
         }}
         subtasks={subtasks}
