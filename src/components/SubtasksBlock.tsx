@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import SubtaskComponent from '@/components/SubtaskComponent';
-import { Subtask } from '@/types/subtask.types';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import ProgressDonut from './DonutProgressBar';
-import InputComponent from './InputComponent';
+import SubtaskComponent from "@/components/SubtaskComponent";
+import type { Subtask } from "@/types/subtask.types";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import ProgressDonut from "./DonutProgressBar";
+import InputComponent from "./InputComponent";
 
-import { useTasks } from '@/context/TaskContext';
+import { useTasks } from "@/context/TaskContext";
 
 const SubtasksBlock = ({
   subtasks,
@@ -27,7 +27,7 @@ const SubtasksBlock = ({
 
   const [addingSubtasks, setAddingSubtasks] = useState(expanded ?? false);
 
-  const completedTasks = subtasks?.filter((task) => task.completed === true);
+  const completedTasks = subtasks?.filter((task) => task.completed);
   const completedTasksCount = completedTasks ? completedTasks.length : 0;
 
   const progress = subtasks?.length
@@ -57,7 +57,7 @@ const SubtasksBlock = ({
           </p>
         </div>
         <ChevronDownIcon
-          className={`h-4 w-4 text-gray-400 hover:text-green-400 inline-block mr-1 ${subtasksOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-gray-400 hover:text-green-400 inline-block mr-1 ${subtasksOpen ? "rotate-180" : ""}`}
           onClick={() => setSubtasksOpen(!subtasksOpen)}
         />
       </div>
@@ -76,7 +76,6 @@ const SubtasksBlock = ({
                 () => {
                   onSubtaskChange();
                 },
-                
               );
             }}
             show={addingSubtasks}
@@ -86,9 +85,9 @@ const SubtasksBlock = ({
           />
 
           <div
-            className={`flex flex-col space-y-2 mt-2 transition-opacity duration-200 ${subtasksOpen ? 'block' : 'hidden'}`}
+            className={`flex flex-col space-y-2 mt-2 transition-opacity duration-200 ${subtasksOpen ? "block" : "hidden"}`}
           >
-            { subtasks?.map((subtask) => (
+            {subtasks?.map((subtask) => (
               <SubtaskComponent
                 key={subtask.id}
                 subtask={subtask}

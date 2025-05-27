@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type React from "react";
+import { useState } from "react";
 
 interface InputComponentProps<T = unknown> {
   placeholder?: string;
@@ -15,15 +16,15 @@ const InputComponent = <T,>({
   show,
   onClose,
 }: InputComponentProps<T>) => {
-  const [value, setValue] = useState<string>('');
+  const [value, setValue] = useState<string>("");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       onKeyDown?.(e, value as unknown as T);
-      setValue('');
+      setValue("");
     }
-    if(e.key === 'Escape') {
-      setValue('');
+    if (e.key === "Escape") {
+      setValue("");
       onClose?.();
     }
   };
@@ -38,17 +39,18 @@ const InputComponent = <T,>({
         type="text"
         onKeyDown={handleKeyDown}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder ?? ''}
+        placeholder={placeholder ?? ""}
         value={value}
-        className={`focus:outline-none rounded-md p-2 w-full bg-gray-800 placeholder:text-sm`}
+        className="focus:outline-none rounded-md p-2 w-full bg-gray-800 placeholder:text-sm"
       />
       <button
+        type="button"
         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
         onClick={() => {
-          setValue('');
+          setValue("");
           onClose?.();
         }}
-      > 
+      >
         X
       </button>
     </div>

@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useTasks } from "@/context/TaskContext";
+import { type Task } from "@/types/task.types";
+import * as dbHelper from "@/utils/database.utils";
+import { formatProgress } from "@/utils/time.utils";
 import {
-  PauseIcon,
   CheckCircleIcon,
   DocumentTextIcon,
+  PauseIcon,
   PlayIcon,
-} from '@heroicons/react/24/outline';
-import { useTasks } from '@/context/TaskContext';
-import { formatProgress } from '@/utils/time.utils';
-import { Task, PartialTask, PartialTaskSchema } from '@/types/task.types';
-import EditTask from './EditTask';
-import * as dbHelper from '@/utils/database.utils';
+} from "@heroicons/react/24/outline";
+import { useEffect, useRef, useState } from "react";
+import EditTask from "./EditTask";
+import { Subtask } from "@/types/subtask.types";
 
 const ActiveTask = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -17,10 +18,14 @@ const ActiveTask = () => {
   const { activeTask, getTaskById, updateTask, setActiveTask } = useTasks();
   const [isPaused, setIsPaused] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
-  const [subtasks, setSubtasks] = useState([]);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const intervalRef = useRef<number | null>(null);
 
   const currentTask = useRef<Task | null>(null);
+
+  if(activeTask === null) {
+    return <></>;
+  }
 
   if (activeTask !== null) {
     currentTask.current = getTaskById(activeTask);
@@ -70,17 +75,17 @@ const ActiveTask = () => {
         setSubtasks(result);
       })
       .catch((error: unknown) => {
-        console.error('Error fetching subtasks:', error);
+        console.error("Error fetching subtasks:", error);
       });
 
     previousTaskId.current = activeTask;
-  }, [activeTask]);
+  }, [activeTask, updateTask, getTaskById]);
 
   useEffect(() => {
     if (!isPaused) {
       intervalRef.current = window.setInterval(() => {
         setTaskTimer((prev) => {
-          let newTime;
+          let newTime = 0;
 
           if (prev === 0 && !overtimeRef.current) {
             setOvertime(true);
@@ -122,7 +127,7 @@ const ActiveTask = () => {
         <div className="bg-gray-800 rounded-lg relative">
           <div
             className={`absolute top-0 left-0 w-full h-full flex justify-center items-center space-x-4 transition-opacity duration-200 ${
-              isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
             <DocumentTextIcon
@@ -131,14 +136,14 @@ const ActiveTask = () => {
             />
             {isPaused && (
               <PlayIcon
-                className={`h-5 w-5 text-gray-400 hover:text-green-500 ${isPausing ? 'animate-ping' : ''}`}
+                className={`h-5 w-5 text-gray-400 hover:text-green-500 ${isPausing ? "animate-ping" : ""}`}
                 onClick={() => setIsPausing(true)}
               />
             )}
 
             {!isPaused && (
               <PauseIcon
-                className={`h-5 w-5 text-gray-400 hover:text-yellow-500 ${isPausing ? 'animate-ping' : ''}`}
+                className={`h-5 w-5 text-gray-400 hover:text-yellow-500 ${isPausing ? "animate-ping" : ""}`}
                 onClick={() => setIsPausing(true)}
               />
             )}
@@ -161,35 +166,36 @@ const ActiveTask = () => {
           {/* Default Content (Title & Time) */}
           <div
             className={`w-full h-full min-h-[60px] px-3 duration-200 ${
-              isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              isHovered ? "opacity-0 pointer-events-none" : "opacity-100"
             }`}
           >
             <div className="flex items-center justify-between w-full h-full min-h-[60px]">
               <h1 className="text-white">{currentTask.current?.title}</h1>
-              <h1 className={overtime ? 'text-yellow-600' : 'text-white'}>
+              <h1 className={overtime ? "text-yellow-600" : "text-white"}>
                 {formatProgress(taskTimer)}
               </h1>
             </div>
-            <div className="flex"></div>
           </div>
         </div>
       </div>
-      <EditTask
-        open={editTaskOpen}
-        task={PartialTaskSchema.parse(currentTask.current)}
-        onClick={(v) => setEditTaskOpen(v)}
-        onChange={({ taskData, subtaskData }) => {
-          if (subtaskData) {
-            setSubtasks(subtaskData);
-          }
-          if (taskData) {
-            updateTask(activeTask, {
-              ...taskData,
-            });
-          }
-        }}
-        subtasks={subtasks}
-      />
+      {currentTask.current && (
+        <EditTask
+          open={editTaskOpen}
+          task={currentTask.current}
+          onClick={(v) => setEditTaskOpen(v)}
+          onChange={({ taskData, subtaskData }) => {
+            if (subtaskData) {
+              setSubtasks(subtaskData);
+            }
+            if (taskData) {
+              updateTask(activeTask, {
+                ...taskData,
+              });
+            }
+          }}
+          subtasks={subtasks}
+        />
+      )}
     </div>
   );
 };

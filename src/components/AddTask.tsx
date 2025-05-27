@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { PlusIcon } from '@heroicons/react/24/solid';
-import { useTasks } from '@/context/TaskContext';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { useTasks } from "@/context/TaskContext";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/solid";
 
-import { parseEstimate } from '@/utils/time.utils';
+import { parseEstimate } from "@/utils/time.utils";
 
-const AddTaskComponent = ({ className, children }: { className?: string, children?: React.ReactNode }) => {
+const AddTaskComponent = ({
+  className,
+  children,
+}: { className?: string; children?: React.ReactNode }) => {
   const [addingTask, setAddingTask] = useState(false);
-  const [taskName, setTaskName] = useState('');
-  const [taskEstimateString, setTaskEstimateString] = useState<string>('00:05');
+  const [taskName, setTaskName] = useState("");
+  const [taskEstimateString, setTaskEstimateString] = useState<string>("00:05");
   const [error, setError] = useState<string | null>(null);
 
   const { addTask } = useTasks();
@@ -17,13 +20,13 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskName) {
-      setError('Task name is required');
+      setError("Task name is required");
       return;
     }
 
     const parsedEstimate = parseEstimate(taskEstimateString);
     if (!parsedEstimate) {
-      setError('Invalid estimate format. Use hh:mm or h:mm');
+      setError("Invalid estimate format. Use hh:mm or h:mm");
       return;
     }
 
@@ -34,29 +37,32 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
       completed: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      description: '',
+      description: "",
       archived: false,
       task_list_id: 0,
+      tags: [],
+      priority: "none"
     });
 
-    setTaskName('');
-    setTaskEstimateString('00:05');
+    setTaskName("");
+    setTaskEstimateString("00:05");
     setError(null);
   };
 
   return (
     <div className={className}>
       <button
+        type="button"
         className="flex cursor-pointer"
-        onClick={() => { 
-          setAddingTask(!addingTask); 
+        onClick={() => {
+          setAddingTask(!addingTask);
           setError(null);
-          setTaskName('');
+          setTaskName("");
         }}
       >
         <PlusIcon
           className={`h-6 w-6 inline-block transition-transform duration-200 ${
-            addingTask ? 'rotate-45' : 'rotate-0'
+            addingTask ? "rotate-45" : "rotate-0"
           }`}
           stroke="currentColor"
         />
@@ -65,10 +71,10 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
       </button>
 
       <div
-        className={`text-red-500 ${error ? 'opacity-100' : 'opacity-0 h-0'} transition-opacity duration-200`}
+        className={`text-red-500 ${error ? "opacity-100" : "opacity-0 h-0"} transition-opacity duration-200`}
       >
         <ExclamationCircleIcon
-          className={`h-5 w-5 inline-block ${error ? 'opacity-100' : 'opacity-0'}`}
+          className={`h-5 w-5 inline-block ${error ? "opacity-100" : "opacity-0"}`}
         />
         {error}
       </div>
@@ -77,8 +83,8 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
         <div
           className={`flex flex-col transform transition-all duration-250 ease-in-out gap-2 ${
             addingTask
-              ? 'opacity-100 translate-y-0 max-h-96'
-              : 'opacity-0 -translate-y-2 max-h-0 overflow-hidden'
+              ? "opacity-100 translate-y-0 max-h-96"
+              : "opacity-0 -translate-y-2 max-h-0 overflow-hidden"
           }`}
         >
           <div className="flex space-x-2 ">
@@ -87,7 +93,7 @@ const AddTaskComponent = ({ className, children }: { className?: string, childre
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
               placeholder="Task"
-              className={`border ${error ? 'border-red-500' : 'border-green-400'} rounded-md p-2 w-full placeholder:text-sm`}
+              className={`border ${error ? "border-red-500" : "border-green-400"} rounded-md p-2 w-full placeholder:text-sm`}
             />
             <input
               type="text"

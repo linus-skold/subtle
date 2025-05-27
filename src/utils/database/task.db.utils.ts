@@ -1,7 +1,6 @@
-import { z } from 'zod';
-import { Task, TaskInsert, TaskSchema } from '@/types/task.types';
-import { getDatabase } from './sqlite.utils';
-
+import { type Task, type TaskInsert, TaskSchema } from "@/types/task.types";
+import { z } from "zod";
+import { getDatabase } from "./sqlite.utils";
 
 export const PartialDatabaseTaskSchema = TaskSchema.omit({
   active: true,
@@ -9,14 +8,16 @@ export const PartialDatabaseTaskSchema = TaskSchema.omit({
 
 export type PartialDatabaseTask = z.infer<typeof PartialDatabaseTaskSchema>;
 
-export const TaskDatabaseSchema = TaskSchema.omit({ completed: true }).extend({
-  completed: z.string().default('false'),
-  archived: z.string().default('false'),
+export const TaskDatabaseSchema = TaskSchema.omit({
+  completed: true,
+  archived: true,
+}).extend({
+  completed: z.string().default("false"),
+  archived: z.string().default("false"),
 });
 export type TaskDatabaseType = z.infer<typeof TaskDatabaseSchema>;
 
-const tableName = 'tasks';
-
+const tableName = "tasks";
 
 export const createTable = async () => {
   const database = getDatabase();
@@ -36,33 +37,56 @@ export const createTable = async () => {
       tags TEXT DEFAULT '[]',
       priority TEXT DEFAULT 'none'
       )`);
-    } catch (error) {
-      console.error('Error creating tasks table:', error);
+  } catch (error) {
+    console.error("Error creating tasks table:", error);
   }
 };
-
 
 export const addTask = async (task: TaskInsert) => {
   const database = getDatabase();
   await createTable();
   return await database.execute(
     `INSERT INTO ${tableName} (title, estimate, progress, completed, description, archived, created_at, updated_at, task_list_id, tags, priority) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [task.title, task.estimate, task.progress, task.completed, task.description, task.archived, task.created_at, task.updated_at, task.task_list_id, JSON.stringify(task.tags), task.priority],
+    [
+      task.title,
+      task.estimate,
+      task.progress,
+      task.completed,
+      task.description,
+      task.archived,
+      task.created_at,
+      task.updated_at,
+      task.task_list_id,
+      JSON.stringify(task.tags),
+      task.priority,
+    ],
   );
 };
 export const updateTask = async (task: PartialDatabaseTask) => {
   const database = getDatabase();
   await database.execute(
     `UPDATE ${tableName} SET title = ?, estimate = ?, progress = ?, completed = ?, description = ?, archived = ?, task_list_id = ?, tags = ?, priority = ? WHERE id = ?`,
-    [task.title, task.estimate, task.progress, task.completed, task.description, task.archived, task.task_list_id, JSON.stringify(task.tags), task.priority, task.id],
+    [
+      task.title,
+      task.estimate,
+      task.progress,
+      task.completed,
+      task.description,
+      task.archived,
+      task.task_list_id,
+      JSON.stringify(task.tags),
+      task.priority,
+      task.id,
+    ],
   );
 };
 
 export const getTaskById = async (id: number): Promise<Task> => {
   const database = getDatabase();
-  const result = await database.select(`SELECT * FROM ${tableName} WHERE id = ?`, [
-    id,
-  ]);
+  const result = await database.select(
+    `SELECT * FROM ${tableName} WHERE id = ?`,
+    [id],
+  );
   return TaskSchema.parse(result);
 };
 
@@ -79,10 +103,10 @@ export const loadTasks = async (): Promise<Task[]> => {
   const parsed = z.array(TaskSchema).parse(
     result.map((task) => ({
       ...task,
-      tags: task.tags ? JSON.parse(task.tags) : [],
-      priority: task.priority || 'none',
-      completed: task.completed === 'true' ? true : false,
-      archived: task.archived === 'true' ? true : false,
+      tags: [""],
+      priority: task.priority || "none",
+      completed: task.completed === "true",
+      archived: task.archived === "true",
     })),
   );
   return parsed;

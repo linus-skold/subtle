@@ -1,6 +1,4 @@
-
 // import { getCurrentWindow, LogicalSize, currentMonitor } from '@tauri-apps/api/window';
-
 
 // export const FocusMode = async () => {
 //   const monitor = await currentMonitor();

@@ -1,10 +1,15 @@
-'use client';
-import React, { createContext, useState, useContext } from 'react';
+"use client";
+import type React from "react";
+import { createContext, useContext, useState } from "react";
 
-import { Task, PartialTask, TaskInsert } from '@/types/task.types';
+import type { PartialTask, Task, TaskInsert } from "@/types/task.types";
 
-import * as dbHelper from '@/utils/database.utils';
-import { PartialSubtask, Subtask, SubtaskInsert } from '@/types/subtask.types';
+import type {
+  PartialSubtask,
+  Subtask,
+  SubtaskInsert,
+} from "@/types/subtask.types";
+import * as dbHelper from "@/utils/database.utils";
 
 export interface TaskContextType {
   tasks: Task[];
@@ -15,7 +20,7 @@ export interface TaskContextType {
   updateTask: (taskId: number, updatedTask: PartialTask) => void;
   activeTask: number | null;
   setActiveTask: React.Dispatch<React.SetStateAction<number | null>>;
-  getTaskById: (taskId: number) => Task;
+  getTaskById: (taskId: number) => Task | null;
   getSubtasksByTaskId: (taskId: number) => Promise<Subtask[]>;
   addSubtask: (
     parentTaskId: number,
@@ -29,38 +34,38 @@ export interface TaskContextType {
 const TaskContext = createContext<TaskContextType>({
   tasks: [],
   setTasks: () => {
-    throw new Error('setTasks function not implemented');
+    throw new Error("setTasks function not implemented");
   },
   onStartup: () => {
-    throw new Error('loadTasks function not implemented');
+    throw new Error("loadTasks function not implemented");
   },
   addTask: () => {
-    throw new Error('addTask function not implemented');
+    throw new Error("addTask function not implemented");
   },
   removeTask: () => {
-    throw new Error('removeTask function not implemented');
+    throw new Error("removeTask function not implemented");
   },
   updateTask: () => {
-    throw new Error('updateTask function not implemented');
+    throw new Error("updateTask function not implemented");
   },
   activeTask: null,
   setActiveTask: () => {
-    throw new Error('setActiveTask function not implemented');
+    throw new Error("setActiveTask function not implemented");
   },
   getTaskById: () => {
-    throw new Error('getTaskById function not implemented');
+    throw new Error("getTaskById function not implemented");
   },
   getSubtasksByTaskId: () => {
-    throw new Error('getSubtasksByTaskId function not implemented');
+    throw new Error("getSubtasksByTaskId function not implemented");
   },
   addSubtask: () => {
-    throw new Error('addSubtask function not implemented');
+    throw new Error("addSubtask function not implemented");
   },
   updateSubtask: () => {
-    throw new Error('updateSubtask function not implemented');
+    throw new Error("updateSubtask function not implemented");
   },
   removeSubtask: () => {
-    throw new Error('removeSubtask function not implemented');
+    throw new Error("removeSubtask function not implemented");
   },
 });
 
@@ -68,13 +73,12 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<number | null>(null);
 
-
   const onStartup = async () => {
     try {
       const tasks = await dbHelper.task.loadTasks();
       setTasks(tasks);
     } catch (error) {
-      console.error('Error loading tasks:', error);
+      console.error("Error loading tasks:", error);
     }
   };
 
@@ -82,7 +86,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.task
       .addTask(task)
       .then((result) => {
-        if (typeof result.lastInsertId === 'number') {
+        if (typeof result.lastInsertId === "number") {
           const newId = result.lastInsertId; // now definitely a number
           setTasks((prevTasks) => [
             ...prevTasks,
@@ -97,7 +101,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         }
       })
       .catch((error: unknown) => {
-        console.error('Error adding task:', error);
+        console.error("Error adding task:", error);
       });
   };
 
@@ -108,10 +112,10 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.task
       .deleteTask(taskId)
       .then(() => {
-        console.log('Task removed successfully:', taskId);
+        console.log("Task removed successfully:", taskId);
       })
       .catch((error: unknown) => {
-        console.error('Error removing task:', error, taskId);
+        console.error("Error removing task:", error, taskId);
       });
   };
 
@@ -125,7 +129,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     // get the task by id
     const task = tasks.find((task) => task.id === taskId);
     if (!task) {
-      console.error('Task not found:', taskId);
+      console.error("Task not found:", taskId);
       return;
     }
     // update the task in the database
@@ -133,10 +137,10 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     dbHelper.task
       .updateTask({ ...task, ...updatedTask })
       .then(() => {
-
+        //
       })
       .catch((error: unknown) => {
-        console.error('Error updating task:', error, {
+        console.error("Error updating task:", error, {
           task: { ...task, ...updatedTask },
           id: taskId,
         });
@@ -144,7 +148,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getTaskById = (taskId: number) => {
-    return tasks.find((task) => task.id === taskId);
+    const found = tasks.find((task) => task.id === taskId);
+    return found ?? null;
   };
 
   const getSubtasksByTaskId = async (taskId: number) => {
@@ -158,11 +163,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   ) => {
     dbHelper.subtask
       .addSubtask({ ...subtask, parent_task_id: parentTaskId })
-      .then((result) => {
+      .then(() => {
         onAdd?.();
       })
       .catch((error: unknown) => {
-        console.error('Error adding subtask:', error);
+        console.error("Error adding subtask:", error);
       });
   };
 
@@ -173,17 +178,18 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         onChange?.();
       })
       .catch((error: unknown) => {
-        console.error('Error updating subtask:', error, subtask);
+        console.error("Error updating subtask:", error, subtask);
       });
   };
 
   const removeSubtask = (subtaskId: number, onRemove?: () => void) => {
-    dbHelper.subtask.deleteSubtask(subtaskId)
+    dbHelper.subtask
+      .deleteSubtask(subtaskId)
       .then(() => {
         onRemove?.();
       })
       .catch((error: unknown) => {
-        console.error('Error removing subtask:', error, subtaskId);
+        console.error("Error removing subtask:", error, subtaskId);
       });
   };
   return (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Dropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,13 +22,13 @@ export default function Dropdown() {
       {isOpen && (
         <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div className="py-1">
-            <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               Account settings
             </a>
-            <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               Support
             </a>
-            <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               Logout
             </a>
           </div>

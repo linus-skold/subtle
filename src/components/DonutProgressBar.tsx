@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-const DonutProgressBar = ({ progress, size = 48, strokeWidth = 5 }) => {
+const DonutProgressBar = ({ progress, size = 48, strokeWidth = 5 }: { progress: number; size?: number; strokeWidth?: number }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;

@@ -1,17 +1,17 @@
-'use client';
-import { Geist, Geist_Mono } from 'next/font/google';
-import '@/styles/globals.css';
-import { AppProvider } from '@/context/AppContext';
-import { TaskProvider } from '@/context/TaskContext';
+"use client";
+import { Geist, Geist_Mono } from "next/font/google";
+import "@/styles/globals.css";
+import { AppProvider } from "@/context/AppContext";
+import { TaskProvider } from "@/context/TaskContext";
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export default function RootLayout({
