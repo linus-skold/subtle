@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint && biome check src/",
+    "version:beta": "npm version prerelease --preid=beta",
+    "postversion": "tsx ./scripts/sync-version.ts",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -51,6 +53,8 @@
     "node-notifier": "^10.0.1",
     "prettier": "^3.5.3",
     "tailwindcss": "^4.0.15",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.27.0"
   }
