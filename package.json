@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint && biome check src/",
     "version:beta": "npm version prerelease --preid=beta",
-    "postversion": "tsx ./scripts/sync-version.ts",
+    "preversion": "tsx ./scripts/sync-version.ts",
     "tauri": "tauri"
   },
   "dependencies": {
