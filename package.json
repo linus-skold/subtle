@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint && biome check src/",
-    "version:beta": "npm version prerelease --preid=beta",
-    "preversion": "tsx ./scripts/sync-version.ts",
+    "version:beta": "tsx ./scripts/sync-version.ts",
+    "version:release": "tsx ./scripts/sync-version.ts --release",
     "tauri": "tauri"
   },
   "dependencies": {
