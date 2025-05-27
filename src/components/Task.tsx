@@ -1,24 +1,23 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import { useState, useEffect } from 'react';
+import { useTasks } from "@/context/TaskContext";
 import {
   CheckCircleIcon,
   DocumentTextIcon,
   PlayIcon,
   QueueListIcon,
-} from '@heroicons/react/24/outline';
-import { useTasks } from '@/context/TaskContext';
+} from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 
-import { Task } from '@/types/task.types';
+import type { Task } from "@/types/task.types";
 
-import { formatEstimate, formatProgress } from '@/utils/time.utils';
+import { formatEstimate, formatProgress } from "@/utils/time.utils";
 
-import TaskContextMenu from './TaskContextMenu';
-import EditTask from './EditTask';
-import { Subtask } from '@/types/subtask.types';
-import SubtasksBlock from './SubtasksBlock';
-import ChipComponent from './ChipComponent';
+import type { Subtask } from "@/types/subtask.types";
+import EditTask from "./EditTask";
+import SubtasksBlock from "./SubtasksBlock";
+import TaskContextMenu from "./TaskContextMenu";
 
 const TaskComponent = (props: {
   order: number;
@@ -64,23 +63,26 @@ const TaskComponent = (props: {
     if (props.task) {
       setTask(props.task);
       setProgress(props.task.progress);
-      const fetchSubtasks = async () => {
-        const tasks = await getSubtasksByTaskId(props.task.id);
-        if (tasks?.length === 0) return;
 
-        setSubtasks(tasks);
-      };
-
-      fetchSubtasks();
+      getSubtasksByTaskId(props.task.id)
+        .then((tasks) => {
+          if (tasks?.length === 0) {
+            setSubtasks(null);
+          } else {
+            setSubtasks(tasks);
+          }
+        })
+        .catch((err: unknown) => {
+          console.error(err);
+        });
     }
-  }, [props.task]);
+  }, [props.task, getSubtasksByTaskId]);
 
   useEffect(() => {
-    if(!contextMenuOpen) {
+    if (!contextMenuOpen) {
       setIsHovered(false);
     }
-  }, [contextMenuOpen])
-
+  }, [contextMenuOpen]);
 
   if (!task) {
     return <></>;
@@ -95,74 +97,74 @@ const TaskComponent = (props: {
     >
       <div
         className={`bg-gray-800 py-2 px-4 rounded-lg relative transition-all duration-${completeTime} ease-in-out ${
-          isCompleting ? '-translate-y-10 opacity-0' : ''
+          isCompleting ? "-translate-y-10 opacity-0" : ""
         }`}
       >
         <div className="flex items-center justify-between w-full font-bold transition-all duration-200 whitespace-nowrap overflow-hidden">
-  {/* Left section */}
-  <div className="flex items-center space-x-2 min-w-0">
-    <h1 className="text-gray-400 text-sm">{order}</h1>
+          {/* Left section */}
+          <div className="flex items-center space-x-2 min-w-0">
+            <h1 className="text-gray-400 text-sm">{order}</h1>
 
-    <div
-      className={`overflow-hidden transition-all duration-100 ease-in-out z-50 ${
-        isHovered ? 'w-5' : 'w-0'
-      }`}
-    >
-      <CheckCircleIcon
-        className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsCompleting(true);
-          setTimeout(() => {
-            updateTask(task.id, { completed: true, progress });
-          }, completeTime);
-        }}
-      />
-    </div>
+            <div
+              className={`overflow-hidden transition-all duration-100 ease-in-out z-50 ${
+                isHovered ? "w-5" : "w-0"
+              }`}
+            >
+              <CheckCircleIcon
+                className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCompleting(true);
+                  setTimeout(() => {
+                    updateTask(task.id, { completed: true, progress });
+                  }, completeTime);
+                }}
+              />
+            </div>
 
-    <h1 className="text-white truncate text-base">{task?.title}</h1>
-  </div>
+            <h1 className="text-white truncate text-base">{task?.title}</h1>
+          </div>
 
-  {/* Right section */}
-  <div
-    className={`flex items-center space-x-2 justify-end z-50 transition-opacity duration-100 ${
-      isHovered ? 'opacity-100' : 'w-0 opacity-0'
-    }`}
-  >
-    <QueueListIcon
-      className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
-      onClick={() => {
-        if (subtasksList === null) {
-          setSubtasks([]);
-        }
-      }}
-    />
+          {/* Right section */}
+          <div
+            className={`flex items-center space-x-2 justify-end z-50 transition-opacity duration-100 ${
+              isHovered ? "opacity-100" : "w-0 opacity-0"
+            }`}
+          >
+            <QueueListIcon
+              className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
+              onClick={() => {
+                if (subtasksList === null) {
+                  setSubtasks([]);
+                }
+              }}
+            />
 
-    <DocumentTextIcon
-      className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
-      onClick={openEditTask}
-    />
-    <PlayIcon
-      className="h-5 w-5 text-gray-400 hover:text-green-400"
-      onClick={() => setActiveTask(task.id)}
-    />
+            <DocumentTextIcon
+              className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
+              onClick={openEditTask}
+            />
+            <PlayIcon
+              className="h-5 w-5 text-gray-400 hover:text-green-400"
+              onClick={() => setActiveTask(task.id)}
+            />
 
-    <TaskContextMenu
-      edit={openEditTask}
-      start={() => setActiveTask(task.id)}
-      complete={() => {
-        setIsCompleting(true);
-        setTimeout(() => {
-          updateTask(task.id, { completed: true, progress });
-        }, completeTime);
-      }}
-      deleteTask={() => props.onDelete?.()}
-      onClose={() => setContextMenuOpen(false)}
-      onClick={() => setContextMenuOpen(true)}
-    />
-  </div>
-</div>
-        <div className={`flex justify-between transition-opacity duration-200`}>
+            <TaskContextMenu
+              edit={openEditTask}
+              start={() => setActiveTask(task.id)}
+              complete={() => {
+                setIsCompleting(true);
+                setTimeout(() => {
+                  updateTask(task.id, { completed: true, progress });
+                }, completeTime);
+              }}
+              deleteTask={() => props.onDelete?.()}
+              onClose={() => setContextMenuOpen(false)}
+              onClick={() => setContextMenuOpen(true)}
+            />
+          </div>
+        </div>
+        <div className="flex justify-between transition-opacity duration-200">
           <p className="text-gray-400 text-sm">
             {formatEstimate(task?.estimate)}
           </p>
@@ -215,7 +217,7 @@ const TaskComponent = (props: {
           className="absolute top-0 left-0 w-full h-full z-10"
           {...listeners}
           {...attributes}
-        ></div>
+        />
       </div>
     </div>
   );

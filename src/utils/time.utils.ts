@@ -1,29 +1,27 @@
 export const parseEstimate = (estimate: string) => {
-  if (estimate.includes('h')) {
-    const parts = estimate.split('h');
-    const hours = parseInt(parts[0], 10);
-    if (estimate.includes('m')) {
-      const minutes = parseInt(parts[1].replace('m', ''), 10);
+  if (estimate.includes("h")) {
+    const parts = estimate.split("h");
+    const hours = Number.parseInt(parts[0], 10);
+    if (estimate.includes("m")) {
+      const minutes = Number.parseInt(parts[1].replace("m", ""), 10);
       return hours * 60 + minutes;
     }
 
-    const minutes = parseInt(parts[1], 10);
+    const minutes = Number.parseInt(parts[1], 10);
     return hours * 60 + minutes;
   }
 
-   const parts = estimate.split(':');
-   if (parts.length === 2) {
-     const hours = parseInt(parts[0], 10);
-     const minutes = parseInt(parts[1], 10);
-     return hours * 60 + minutes;
-   }
+  const parts = estimate.split(":");
+  if (parts.length === 2) {
+    const hours = Number.parseInt(parts[0], 10);
+    const minutes = Number.parseInt(parts[1], 10);
+    return hours * 60 + minutes;
+  }
 };
 
 export const formatEstimate = (estimate: number) => {
-
-  
   if (!estimate) {
-    return `-`;
+    return "-";
   }
   //convert from seconds to hours and minutes
   const hours = Math.floor(estimate / 3600);

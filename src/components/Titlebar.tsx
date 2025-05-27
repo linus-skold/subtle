@@ -1,7 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
-
 export const TitlebarComponent = () => {
   return (
     <div
@@ -12,15 +11,19 @@ export const TitlebarComponent = () => {
         subtle
       </div>
       <div className="mx-4">
-          <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-white transition-colors" onClick={() => {
-
-            getCurrentWindow().close().then(() => {
-              console.log("Window closed");
-            }).catch((error: unknown) => {
-              console.error("Error closing window:", error);
-            });
-
-}} />
+        <XMarkIcon
+          className="h-5 w-5 text-gray-400 hover:text-white transition-colors"
+          onClick={() => {
+            getCurrentWindow()
+              .close()
+              .then(() => {
+                console.log("Window closed");
+              })
+              .catch((error: unknown) => {
+                console.error("Error closing window:", error);
+              });
+          }}
+        />
       </div>
     </div>
   );

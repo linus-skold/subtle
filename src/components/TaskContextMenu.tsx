@@ -1,7 +1,7 @@
-import { EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { Fragment, useEffect, useRef } from 'react';
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { useEffect, useRef } from "react";
 
 const TaskContextMenu = ({
   edit,
@@ -24,17 +24,20 @@ const TaskContextMenu = ({
     <Menu>
       {({ open }) => {
         useEffect(() => {
-          if(wasOpen.current && !open) {
+          if (wasOpen.current && !open) {
             onClose?.();
           }
           wasOpen.current = open;
-        }, [open]);
+        }, [open, onClose]);
 
         return (
           <div>
             <MenuButton>
-              {' '}
-              <EllipsisVerticalIcon className="h-5 w-5 text-gray-400 hover:text-gray-100" onClick={onClick}/>
+              {" "}
+              <EllipsisVerticalIcon
+                className="h-5 w-5 text-gray-400 hover:text-gray-100"
+                onClick={onClick}
+              />
             </MenuButton>
             <MenuItems
               transition
@@ -42,39 +45,42 @@ const TaskContextMenu = ({
               anchor="bottom end"
             >
               <MenuItem>
-                <a
+                <button
+                  type="button"
                   className="block data-focus:bg-gray-800 px-2 py-1.5"
                   onClick={edit}
                 >
                   Edit
-                </a>
+                </button>
               </MenuItem>
               <MenuItem>
-                <a
+                <button
+                  type="button"
                   className="block data-focus:bg-gray-800 px-2 py-1.5"
                   onClick={start}
                 >
                   Start
-                </a>
+                </button>
               </MenuItem>
               <MenuItem>
-                <a
+                <button
+                  type="button"
                   className="block data-focus:bg-gray-800 px-2 py-1.5"
                   onClick={complete}
                 >
                   Complete
-                </a>
+                </button>
               </MenuItem>
               <hr className="border-gray-500 my-2" />
               <MenuItem>
-                <div className="flex items-center space-x-2 data-focus:bg-gray-800" onClick={deleteTask}>
+                <div
+                  className="flex items-center space-x-2 data-focus:bg-gray-800"
+                  onClick={deleteTask}
+                >
                   <TrashIcon className="h-5 w-5 text-red-500" />
-                  <a
-                    className="block data-focus:bg-gray-800 text-red-500 px-2 py-1.5"
-                    href="#"
-                  >
+                  <span className="block data-focus:bg-gray-800 text-red-500 px-2 py-1.5">
                     Delete
-                  </a>
+                  </span>
                 </div>
               </MenuItem>
             </MenuItems>

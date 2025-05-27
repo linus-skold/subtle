@@ -37,13 +37,10 @@ body {
   }
 }
 
-
 .strike-through {
   text-decoration: line-through;
   text-decoration-color: #f56565; /* Example red color */
 }
-
-
 
 .subtle-gradient-shift {
   background: linear-gradient(135deg, #00ff5e, #0062ff);

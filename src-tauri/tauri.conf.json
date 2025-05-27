@@ -33,5 +33,19 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "dialog": {
+        "active": true,
+        "title": "Update Available",
+        "description": "A new version of Subtle Todo is available. Would you like to update now?"
+      },
+      "endpoints": [
+        "https://github.com/linus-skold/subtle/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE4NUJEQzQyMDU1NzI3M0IKUldRN0oxY0ZRdHhiR0w5Ykc4MjJSZ2lXMVorQjY1WDkzOHZQRVRFS3FLMXJKOWdiVFU0YWhmNUMK"
+    }
   }
 }

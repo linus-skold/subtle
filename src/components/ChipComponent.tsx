@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-
 export const ChipComponentSchema = z.object({
   label: z.string(),
   onClick: z.function().args(z.unknown()).optional(),
@@ -9,25 +8,20 @@ export const ChipComponentSchema = z.object({
 });
 export type ChipComponentProps = z.infer<typeof ChipComponentSchema>;
 
-
-
-
 const ChipComponent = (props: ChipComponentProps) => {
+  const colors = [
+    "emerald",
+    "sky",
+    "rose",
+    "violet",
+    "amber",
+    "indigo",
+    "lime",
+  ];
 
-    const colors = [
-      "emerald",
-      "sky",
-      "rose",
-      "violet",
-      "amber",
-      "indigo",
-      "lime",
-    ];
-  
   const { label, onClick, index, className = "" } = props;
-  
 
-    const color = colors[index];
+  const color = colors[index];
 
   return (
     <div
@@ -38,5 +32,5 @@ const ChipComponent = (props: ChipComponentProps) => {
       <span className="text-xs font-medium">{label}</span>
     </div>
   );
-}
+};
 export default ChipComponent;
