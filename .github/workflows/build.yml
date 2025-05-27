@@ -27,9 +27,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Tauri CLI
-        run: cargo install tauri-cli --locked
-
       - name: Install pnpm
         run: npm install -g pnpm
 
@@ -47,7 +44,6 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: |
-            ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
 
@@ -56,7 +52,6 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            ./src-tauri/target/release/bundle/msi/*.msi
             ./src-tauri/target/release/bundle/nsis/*.exe
           prerelease: ${{ contains(github.ref_name, 'beta') }}
         env:
