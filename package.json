@@ -1,15 +1,15 @@
 {
   "name": "tauri-nextjs-template",
   "private": true,
-  "version": "0.2.1-beta.3",
+  "version": "0.2.1-beta.5",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint && biome check src/",
-    "version:beta": "npm version prerelease --preid=beta",
-    "preversion": "tsx ./scripts/sync-version.ts",
+    "version:beta": "npm version prerelease --preid=beta --no-git-tag-version",
+    "postversion": "tsx ./scripts/sync-version.ts && git add . && git commit -m \"chore: sync version\" && git push",
     "tauri": "tauri"
   },
   "dependencies": {
