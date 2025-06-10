@@ -1,13 +1,10 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 
 import path from "node:path";
-import { fileURLToPath } from 'node:url';
 
 console.log("Starting Electron app...");
 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function waitForServer(url: string, retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
@@ -23,17 +20,22 @@ async function waitForServer(url: string, retries = 20, delay = 500) {
 }
 
 
-
 const createWindow = async () => {
   console.log("Creating main window...");
   await waitForServer("http://localhost:3000");
+
+
+
+const preloadPath = path.resolve(__dirname, "preload.cjs");
+console.log("Using preload path:", preloadPath);
+
   const mainWindow = new BrowserWindow({
     width: 400,
     height: 900,
     frame: false,
     titleBarStyle: "hidden",
     webPreferences: {
-      preload: path.resolve(__dirname, "preload.js"), // Adjust the path to your preload script
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true, // For simplicity, not recommended for production
     },
@@ -51,13 +53,15 @@ const createWindow = async () => {
   }
   mainWindow.webContents.openDevTools({ mode: 'detach' });
 
-  ipcMain.on("message-from-ui", (event, msg) => {
-    console.log("Message from UI:", msg);
-    // You can handle messages from the UI here
-    event.reply("message-from-main", `Received: ${msg}`);
+
+  ipcMain.on("close-window", () => {
+    console.log("Closing main window...");
+    mainWindow.close();
+    // sigterm node process
+    app.quit();
+
   });
 
-  // mainWindow.loadFile("index.html"); // Load your HTML file
 };
 
 

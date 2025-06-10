@@ -5,8 +5,8 @@
   "type": "module",
   "main": "src/app.ts",
   "scripts": {
-    "build:electron": "tsc -p ./electron/tsconfig.json",
-    "dev:electron": "electron ./build/electron/main.js",
+    "build:electron": "tsc -p ./electron/tsconfig.json && tsx ./scripts/rename.ts",
+    "dev:electron": "electron ./build/electron/main.cjs",
     "predev": "npm run build:electron",
     "dev": "concurrently \"next dev --turbopack\" \"npm run dev:electron\"",
     "next:dev": "next dev --turbopack",
