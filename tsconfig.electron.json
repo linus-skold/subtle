@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./build/electron",
+    "module": "ESNext",        
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": false
+  },
+  "exclude": ["src/electron/database/**/*"],
+  "include": ["src/electron/**/*"]
+}

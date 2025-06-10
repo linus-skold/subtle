@@ -1,9 +1,10 @@
-import Database from "@tauri-apps/plugin-sql";
+import Database from 'better-sqlite3';
 
-let database: Database;
-export const setDatabase = async () => {
-  const db = await Database.load("sqlite:subtle-todo.db");
-  database = db;
+let database: Database.Database;
+
+export const setupDatabase = () => {
+  database = new Database("subtle-todo.db", {});
+  
 };
 
 export const getDatabase = () => {

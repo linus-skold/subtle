@@ -1,5 +1,4 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
-import { openUrl } from "@tauri-apps/plugin-opener";
 
 const Link = ({
   href,
@@ -8,9 +7,9 @@ const Link = ({
 }: { href: string; children?: React.ReactNode; className?: string }) => {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    openUrl(href).catch((error: unknown) => {
-      console.error("Failed to open URL:", error);
-    });
+    // openUrl(href).catch((error: unknown) => {
+    //   console.error("Failed to open URL:", error);
+    // });
   };
   return (
     <a

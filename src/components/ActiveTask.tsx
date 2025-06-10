@@ -1,6 +1,5 @@
 import { useTasks } from "@/context/TaskContext";
 import { type Task } from "@/types/task.types";
-import * as dbHelper from "@/utils/database.utils";
 import { formatProgress } from "@/utils/time.utils";
 import {
   CheckCircleIcon,
@@ -69,14 +68,14 @@ const ActiveTask = () => {
       overtimeRef.current = isOvertime;
     }
 
-    dbHelper.subtask
-      .getSubtasksByParentId(activeTask)
-      .then((result) => {
-        setSubtasks(result);
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching subtasks:", error);
-      });
+    // dbHelper.subtask
+    //   .getSubtasksByParentId(activeTask)
+    //   .then((result) => {
+    //     setSubtasks(result);
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error fetching subtasks:", error);
+    //   });
 
     previousTaskId.current = activeTask;
   }, [activeTask, updateTask, getTaskById]);

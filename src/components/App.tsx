@@ -3,7 +3,7 @@ export const App = ({
   className,
 }: { children: React.ReactNode; className?: string }) => {
   return (
-    <main className={`h-screen overflow-hidden select-none ${className ?? ""}`}>
+    <main id="app" className={`h-screen overflow-hidden select-none ${className ?? ""}`}>
       {children}
     </main>
   );
