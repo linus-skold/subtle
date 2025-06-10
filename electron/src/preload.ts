@@ -1,8 +1,6 @@
 // src/electron/preload.ts
 import { contextBridge, ipcRenderer } from 'electron';
-
+console.log("✅ Preload script loaded");
 contextBridge.exposeInMainWorld('electronAPI', {
-  sendMessage: (msg: string) => ipcRenderer.send('message-from-ui', msg),
-  onMessage: (callback: (msg: string) => void) =>
-    ipcRenderer.on('message-from-main', (_, msg) => callback(msg)),
+  closeWindow: () => ipcRenderer.send('close-window'),
 });
