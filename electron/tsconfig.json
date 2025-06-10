@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "allowJs": false
   },
-  "exclude": ["src/electron/database/**/*"],
-  "include": ["src/electron/**/*"]
+  "exclude": ["src/database/**/*"],
+  "include": ["src/**/*"]
 }
