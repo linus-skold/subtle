@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
+
+import { version } from "../../package.json";
 import React, { useEffect, useState, useLayoutEffect } from "react";
 
 import ActiveTask from "@/components/ActiveTask";
@@ -50,12 +52,6 @@ export default function Home() {
   useEffect(() => {
     const startup = async () => {
       try {
-        await dbHelper.sqlite.setDatabase();
-        await dbHelper.task.createTable();
-        await dbHelper.subtask.createSubtaskTable();
-        await dbHelper.taskList.createListTable();
-        await taskContext.onStartup();
-
         setTimeout(() => {
           // Simulate a delay for startup
           setIsStartup(false);
@@ -145,7 +141,7 @@ export default function Home() {
                   .map((task) => <CompletedTask key={task.id} task={task} />)}
             </TaskList>
             <div className="bottom-0 left-0 w-full h-8 bg-[var(--background)] absolute items-center justify-center flex">
-              <p className="text-sm">{DateTime.now().toFormat("MMM dd HH:mm")}</p>
+              <p className="text-sm">{version}</p>
             </div>
           </div>
 

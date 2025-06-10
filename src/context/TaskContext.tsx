@@ -9,7 +9,6 @@ import type {
   Subtask,
   SubtaskInsert,
 } from "@/types/subtask.types";
-import * as dbHelper from "@/utils/database.utils";
 
 export interface TaskContextType {
   tasks: Task[];
@@ -75,48 +74,48 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onStartup = async () => {
     try {
-      const tasks = await dbHelper.task.loadTasks();
-      setTasks(tasks);
+      // const tasks = await dbHelper.task.loadTasks();
+      setTasks([]); // Replace with actual tasks from dbHelper
     } catch (error) {
       console.error("Error loading tasks:", error);
     }
   };
 
   const addTask = (task: TaskInsert) => {
-    dbHelper.task
-      .addTask(task)
-      .then((result) => {
-        if (typeof result.lastInsertId === "number") {
-          const newId = result.lastInsertId; // now definitely a number
-          setTasks((prevTasks) => [
-            ...prevTasks,
-            {
-              ...task,
-              completed: false,
-              active: false,
-              overtime: false,
-              id: newId,
-            },
-          ]);
-        }
-      })
-      .catch((error: unknown) => {
-        console.error("Error adding task:", error);
-      });
+    // dbHelper.task
+    //   .addTask(task)
+    //   .then((result) => {
+    //     if (typeof result.lastInsertId === "number") {
+    //       const newId = result.lastInsertId; // now definitely a number
+    //       setTasks((prevTasks) => [
+    //         ...prevTasks,
+    //         {
+    //           ...task,
+    //           completed: false,
+    //           active: false,
+    //           overtime: false,
+    //           id: newId,
+    //         },
+    //       ]);
+    //     }
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error adding task:", error);
+    //   });
   };
 
   const removeTask = (taskId: number) => {
     const updatedTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(updatedTasks);
 
-    dbHelper.task
-      .deleteTask(taskId)
-      .then(() => {
-        console.log("Task removed successfully:", taskId);
-      })
-      .catch((error: unknown) => {
-        console.error("Error removing task:", error, taskId);
-      });
+    // dbHelper.task
+    //   .deleteTask(taskId)
+    //   .then(() => {
+    //     console.log("Task removed successfully:", taskId);
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error removing task:", error, taskId);
+    //   });
   };
 
   const updateTask = (taskId: number, updatedTask: PartialTask) => {
@@ -134,17 +133,17 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     }
     // update the task in the database
 
-    dbHelper.task
-      .updateTask({ ...task, ...updatedTask })
-      .then(() => {
-        //
-      })
-      .catch((error: unknown) => {
-        console.error("Error updating task:", error, {
-          task: { ...task, ...updatedTask },
-          id: taskId,
-        });
-      });
+    // dbHelper.task
+    //   .updateTask({ ...task, ...updatedTask })
+    //   .then(() => {
+    //     //
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error updating task:", error, {
+    //       task: { ...task, ...updatedTask },
+    //       id: taskId,
+    //     });
+    //   });
   };
 
   const getTaskById = (taskId: number) => {
@@ -153,7 +152,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getSubtasksByTaskId = async (taskId: number) => {
-    return dbHelper.subtask.getSubtasksByParentId(taskId);
+    return []; // Replace with actual subtasks from dbHelper
+    // return dbHelper.subtask.getSubtasksByParentId(taskId);
   };
 
   const addSubtask = (
@@ -161,36 +161,36 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     subtask: SubtaskInsert,
     onAdd?: () => void,
   ) => {
-    dbHelper.subtask
-      .addSubtask({ ...subtask, parent_task_id: parentTaskId })
-      .then(() => {
-        onAdd?.();
-      })
-      .catch((error: unknown) => {
-        console.error("Error adding subtask:", error);
-      });
+    // dbHelper.subtask
+    //   .addSubtask({ ...subtask, parent_task_id: parentTaskId })
+    //   .then(() => {
+    //     onAdd?.();
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error adding subtask:", error);
+    //   });
   };
 
   const updateSubtask = (subtask: PartialSubtask, onChange?: () => void) => {
-    dbHelper.subtask
-      .updateSubtask(subtask)
-      .then(() => {
-        onChange?.();
-      })
-      .catch((error: unknown) => {
-        console.error("Error updating subtask:", error, subtask);
-      });
+    // dbHelper.subtask
+    //   .updateSubtask(subtask)
+    //   .then(() => {
+    //     onChange?.();
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error updating subtask:", error, subtask);
+    //   });
   };
 
   const removeSubtask = (subtaskId: number, onRemove?: () => void) => {
-    dbHelper.subtask
-      .deleteSubtask(subtaskId)
-      .then(() => {
-        onRemove?.();
-      })
-      .catch((error: unknown) => {
-        console.error("Error removing subtask:", error, subtaskId);
-      });
+    // dbHelper.subtask
+    //   .deleteSubtask(subtaskId)
+    //   .then(() => {
+    //     onRemove?.();
+    //   })
+    //   .catch((error: unknown) => {
+    //     console.error("Error removing subtask:", error, subtaskId);
+    //   });
   };
   return (
     <TaskContext.Provider
