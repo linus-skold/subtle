@@ -15,7 +15,7 @@ const AddTaskComponent = ({
   const [taskEstimateString, setTaskEstimateString] = useState<string>("00:05");
   const [error, setError] = useState<string | null>(null);
 
-  const { addTask } = useTasks();
+  const { taskService } = useTasks();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,19 +30,19 @@ const AddTaskComponent = ({
       return;
     }
 
-    addTask({
-      title: taskName,
-      estimate: parsedEstimate * 60,
-      progress: 0,
-      completed: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      description: "",
-      archived: false,
-      task_list_id: 0,
-      tags: [],
-      priority: "none"
-    });
+    // taskService.createTask({
+    //   title: taskName,
+    //   estimate: parsedEstimate * 60,
+    //   progress: 0,
+    //   completed: false,
+    //   created_at: new Date().toISOString(),
+    //   updated_at: new Date().toISOString(),
+    //   description: "",
+    //   archived: false,
+    //   task_list_id: 0,
+    //   tags: [],
+    //   priority: "none"
+    // });
 
     setTaskName("");
     setTaskEstimateString("00:05");

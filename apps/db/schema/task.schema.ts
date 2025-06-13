@@ -22,4 +22,4 @@ export const tasks = sqliteTable('tasks', {
 
 export const TaskSelectSchema = createSelectSchema(tasks);
 
-export type TaskSchema = z.infer<typeof TaskSelectSchema & {active: boolean, overtime: boolean}>;
+export type Task = z.infer<typeof TaskSelectSchema & {active: boolean, overtime: boolean}>;
