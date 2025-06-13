@@ -8,7 +8,11 @@
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "allowJs": false
+    "allowJs": false,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@db/*": ["../db/*"],
+    }
   },
   "include": ["src/**/*", "../db"]
 }

@@ -23,14 +23,20 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@db/*": [
+        "../db/*"
+      ]
     }
   },
   "include": [
-    "next-env.d.ts",
-    "dist/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "../db/**/*",
+    "next-env.d.ts",
+    "../../dist/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

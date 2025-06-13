@@ -67,6 +67,17 @@ const createWindow = async () => {
     app.quit();
   });
 
+  ipcMain.handle("get-tasks", async () => {
+    try {
+      const tasks = await getTasks();
+      return tasks;
+    } catch (error: unknown) {
+      console.error("Error fetching tasks:", error);
+      throw error; // Re-throw to handle in renderer
+    }
+  });
+
+
 };
 
 
