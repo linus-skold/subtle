@@ -8,7 +8,7 @@
     "build:electron": "vite build --config ./vite.electron.config.ts && vite build --config ./vite.preload.config.ts && electron-rebuild --only better-sqlite3",
     "dev:electron": "electron ./build/main.js",
     "predev": "npm run build:electron",
-    "next:dev": "next dev --turbopack",
+    "next:dev": "next dev apps/next --turbopack",
     "dev": "concurrently -k \"npm run next:dev\" \"npm run dev:electron\"",
     "build": "next build",
     "start": "next start"

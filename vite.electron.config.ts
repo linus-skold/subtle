@@ -9,7 +9,7 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'esnext',
     lib: {
-      entry: path.resolve(__dirname, 'electron/src/main.ts'),
+      entry: path.resolve(__dirname, 'apps/electron/src/main.ts'),
       formats: ['es'],
     },
     rollupOptions: {

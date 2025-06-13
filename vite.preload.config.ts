@@ -9,7 +9,7 @@ export default defineConfig({
       outDir: 'build',
       emptyOutDir: false,
       lib: {
-        entry: path.resolve(__dirname, 'electron/src/preload.ts'),
+        entry: path.resolve(__dirname, 'apps/electron/src/preload.ts'),
         formats: ['cjs'], // ❗ CJS for preload
       },
       rollupOptions: {
