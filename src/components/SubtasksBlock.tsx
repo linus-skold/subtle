@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-import SubtaskComponent from "@/components/SubtaskComponent";
-import type { Subtask } from "@/types/subtask.types";
+import SubtaskComponent from "./SubtaskComponent";
+import type { Subtask } from "../../../types/subtask.types";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import ProgressDonut from "./DonutProgressBar";
 import InputComponent from "./InputComponent";
 
-import { useTasks } from "@/context/TaskContext";
+import { useTasks } from "../context/TaskContext";
 
 const SubtasksBlock = ({
   subtasks,

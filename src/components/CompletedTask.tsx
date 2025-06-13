@@ -1,5 +1,5 @@
-import type { Task } from "@/types/task.types";
-import { formatProgress } from "@/utils/time.utils";
+import type { Task } from "../../../types/task.types";
+import { formatProgress } from "../utils/time.utils";
 import { ArchiveBoxArrowDownIcon } from "@heroicons/react/24/outline";
 
 const CompletedTask = ({ task }: { task: Task }) => {

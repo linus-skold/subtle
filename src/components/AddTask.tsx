@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-import { useTasks } from "@/context/TaskContext";
+import { useTasks } from "../context/TaskContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
-import { parseEstimate } from "@/utils/time.utils";
+import { parseEstimate } from "../utils/time.utils";
 
 const AddTaskComponent = ({
   className,

@@ -40,3 +40,4 @@ yarn-error.log*
 
 *.log
 build/
+/src/generated/prisma

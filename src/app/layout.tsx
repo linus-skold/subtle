@@ -1,8 +1,8 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
-import { AppProvider } from "@/context/AppContext";
-import { TaskProvider } from "@/context/TaskContext";
+import { AppProvider } from "../context/AppContext";
+import { TaskProvider } from "../context/TaskContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
