@@ -2,5 +2,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 console.log("✅ Preload script loaded");
 contextBridge.exposeInMainWorld('electronAPI', {
-  closeWindow: () => ipcRenderer.send('close-window'),
+  send: (channel: string, data: unknown) => ipcRenderer.send(channel, data),
+  receive: (channel: string, func: (...args: unknown[]) => void) =>
+    ipcRenderer.on(channel, (event, ...args: unknown[]) => func(...args))
 });

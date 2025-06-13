@@ -1,10 +1,21 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 
-import path from "node:path";
+
+import { getTasks } from "./db/task.query.js";
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+export const __filename = fileURLToPath(import.meta.url);
+export const __dirname = path.dirname(__filename);
+
 
 console.log("Starting Electron app...");
 
-
+getTasks().then((tasks) => {
+  console.log("Tasks loaded from database:", tasks);
+}).catch((error: unknown) => {
+  console.error("Error loading tasks from database:", error);
+});
 
 async function waitForServer(url: string, retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
@@ -24,10 +35,8 @@ const createWindow = async () => {
   console.log("Creating main window...");
   await waitForServer("http://localhost:3000");
 
-
-
-const preloadPath = path.resolve(__dirname, "preload.cjs");
-console.log("Using preload path:", preloadPath);
+  const preloadPath = path.join(__dirname, "preload.js");
+  console.log("Using preload path:", preloadPath);
 
   const mainWindow = new BrowserWindow({
     width: 400,
@@ -53,13 +62,9 @@ console.log("Using preload path:", preloadPath);
   }
   mainWindow.webContents.openDevTools({ mode: 'detach' });
 
-
   ipcMain.on("close-window", () => {
-    console.log("Closing main window...");
     mainWindow.close();
-    // sigterm node process
     app.quit();
-
   });
 
 };

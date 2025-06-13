@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { useTasks } from "@/context/TaskContext";
+import { useTasks } from "../context/TaskContext";
 import {
   CheckCircleIcon,
   DocumentTextIcon,
@@ -10,11 +10,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
-import type { Task } from "@/types/task.types";
+import type { Task } from "../../../types/task.types";
 
-import { formatEstimate, formatProgress } from "@/utils/time.utils";
+import { formatEstimate, formatProgress } from "../utils/time.utils";
 
-import type { Subtask } from "@/types/subtask.types";
+import type { Subtask } from "../../../types/subtask.types";
 import EditTask from "./EditTask";
 import SubtasksBlock from "./SubtasksBlock";
 import TaskContextMenu from "./TaskContextMenu";

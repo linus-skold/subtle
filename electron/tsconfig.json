@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "../build/electron",
-    "module": "commonjs",        
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "sourceMap": true,
+    "outDir": "../build",
+    "module": "esnext",        
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "sourceMap": false,
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
     "allowJs": false
   },
-  "exclude": ["src/database/**/*"],
   "include": ["src/**/*"]
 }

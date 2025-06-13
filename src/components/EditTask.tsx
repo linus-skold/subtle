@@ -1,6 +1,6 @@
-import { useTasks } from "@/context/TaskContext";
-import type { Subtask } from "@/types/subtask.types";
-import type { PartialTask, Task } from "@/types/task.types";
+import { useTasks } from "../context/TaskContext";
+import type { Subtask } from "../../../types/subtask.types";
+import type { PartialTask, Task } from "../../../types/task.types";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";

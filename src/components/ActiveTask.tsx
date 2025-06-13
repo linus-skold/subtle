@@ -1,6 +1,6 @@
-import { useTasks } from "@/context/TaskContext";
-import { type Task } from "@/types/task.types";
-import { formatProgress } from "@/utils/time.utils";
+import { useTasks } from "../context/TaskContext";
+import { type Task } from "../../../types/task.types";
+import { formatProgress } from "../utils/time.utils";
 import {
   CheckCircleIcon,
   DocumentTextIcon,
@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import EditTask from "./EditTask";
-import { Subtask } from "@/types/subtask.types";
+import { Subtask } from "../../../types/subtask.types";
 
 const ActiveTask = () => {
   const [isHovered, setIsHovered] = useState(false);
