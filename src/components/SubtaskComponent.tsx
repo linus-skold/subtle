@@ -1,5 +1,5 @@
-import { useTasks } from "@/context/TaskContext";
-import type { Subtask } from "@/types/subtask.types";
+import { useTasks } from "../context/TaskContext";
+import type { Subtask } from "../../../types/subtask.types";
 import { CheckCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleIconFilled } from "@heroicons/react/24/solid";
 import React, { useEffect, useRef, useState } from "react";

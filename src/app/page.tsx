@@ -1,22 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
 import { version } from "../../package.json";
 import React, { useEffect, useState, useLayoutEffect } from "react";
 
-import ActiveTask from "@/components/ActiveTask";
-import ActivityBar from "@/components/ActivityBar";
-import AddTaskComponent from "@/components/AddTask";
-import { App } from "@/components/App";
-import CompletedTask from "@/components/CompletedTask";
-import SettingsModal from "@/components/SettingsModal";
-import Task from "@/components/Task";
-import TaskList from "@/components/TaskList";
-import { TitlebarComponent } from "@/components/Titlebar";
+import ActiveTask from "../components/ActiveTask";
+import ActivityBar from "../components/ActivityBar";
+import AddTaskComponent from "../components/AddTask";
+import { App } from "../components/App";
+import CompletedTask from "../components/CompletedTask";
+import SettingsModal from "../components/SettingsModal";
+import Task from "../components/Task";
+import TaskList from "../components/TaskList";
+import { TitlebarComponent } from "../components/Titlebar";
 
-import { useAppContext } from "@/context/AppContext";
-import { useTasks } from "@/context/TaskContext";
+import { useAppContext } from "../context/AppContext";
+import { useTasks } from "../context/TaskContext";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -24,8 +22,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import LoadingSpinner from "@/components/LoadingSpinner";
-import * as dbHelper from "@/utils/database.utils";
+import LoadingSpinner from "../components/LoadingSpinner";
+import * as dbHelper from "../../electron/src/database.utils";
 
 import { DateTime } from "luxon";
 
@@ -48,6 +46,14 @@ export default function Home() {
   const { tasks, removeTask, setTasks, activeTask } = taskContext;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
+
+  useEffect(() => {
+    if (window.electronAPI) {
+      console.log("Electron API is loaded");
+    } else {
+      console.log("Electron API NOT available");
+    }
+  }, []);
 
   useEffect(() => {
     const startup = async () => {
@@ -112,7 +118,6 @@ export default function Home() {
           {!state.isFocusMode && <TitlebarComponent />}
           <div className="flex flex-col h-full gap-4 m-4 ">
             <ActivityBar />
-
             {activeTask && <ActiveTask />}
             <TaskList maxHeight="50vh">
               {tasks.length > 0 &&

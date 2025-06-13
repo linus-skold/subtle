@@ -1,5 +1,5 @@
-import { useAppContext } from "@/context/AppContext";
-import { useTasks } from "@/context/TaskContext";
+import { useAppContext } from "../context/AppContext";
+import { useTasks } from "../context/TaskContext";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { BoltIcon } from "@heroicons/react/24/outline";
