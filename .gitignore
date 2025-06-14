@@ -46,3 +46,6 @@ build/
 /apps/next/build/
 /apps/next/.next/
 /apps/electron/build/**
+
+*.db
+.env*
