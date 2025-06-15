@@ -3,9 +3,9 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 const TitlebarComponent = () => {
   return (
     <div
-      className="top-0 left-0 flex justify-end items-center w-full h-6 bg-gray-800 " style={{ WebkitAppRegion: "drag" }}
+      className="top-0 left-0 flex justify-end items-center w-full h-6 bg-gray-800 shrink-0" style={{ WebkitAppRegion: "drag" }}
     >
-      <div className="absolute left-1/2 -translate-x-1/2 text-xs select-none">
+      <div className="fixed left-1/2 -translate-x-1/2 text-xs select-none">
         subtle
       </div>
       <div className="mx-4" style={{ WebkitAppRegion: "no-drag" }}>

@@ -25,4 +25,10 @@ export default defineConfig({
       },
     },
   },
+  resolve: {
+    alias: {
+      '@db': path.resolve(__dirname, 'apps/db'),
+      '@': path.resolve(__dirname, 'apps/electron/src'),
+    },
+  },
 });

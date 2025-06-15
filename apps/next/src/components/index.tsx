@@ -9,7 +9,6 @@ export { default as ProgressBar } from "./ProgressBar";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as TaskComponent } from "./Task";
 export { default as TitlebarComponent } from "./Titlebar";
-export { default as App } from "./App";
 export { default as Task } from "./Task";
 export { default as EditTask } from "./EditTask";
 export { default as SubtasksBlock } from "./SubtasksBlock";
