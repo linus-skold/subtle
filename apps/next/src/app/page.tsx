@@ -171,6 +171,57 @@ export default function Home() {
     setActiveTask(null);
   };
 
+  const toggleNoteMode = () => {
+    const nextMode = !noteMode;
+
+    setNoteMode(nextMode);
+    // updateState({ isNoteMode: !noteMode });
+
+    window.electronAPI
+      .invoke("change-window-size", {
+        width: nextMode ? 900 : 400, // Adjust width based on note mode
+        height: 900, // Keep height consistent
+      })
+      .then(() => {
+        console.log("Window size updated");
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to update window size:", error);
+      });
+  };
+
+  if (noteMode) {
+    return (
+      <main id="app" className={`h-screen select-none flex flex-col`}>
+        <div className="shrink-0 h-6">
+          <TitlebarComponent />
+        </div>
+
+        <div className="flex flex-1 overflow-hidden">
+          <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8">
+            <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+            <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+            <PencilIcon
+              className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"
+              onClick={toggleNoteMode}
+            />
+            <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
+          </div>
+        <NotesComponent />
+
+        </div>
+
+
+        <SettingsModal
+          isOpen={settingsOpen}
+          onClick={() => {
+            updateState({ isSettingsModalOpen: false });
+          }}
+        />
+      </main>
+    );
+  }
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
@@ -186,12 +237,13 @@ export default function Home() {
             <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8">
               <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-              <PencilIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+              <PencilIcon
+                className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"
+                onClick={toggleNoteMode}
+              />
               <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
             </div>
 
-            {/* <NotesComponent /> */}
-            
             <div className="flex-1 flex flex-col h-screen gap-4 p-4">
               <ActivityBar />
               {activeTask && (
