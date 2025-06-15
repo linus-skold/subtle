@@ -17,7 +17,6 @@ import type { Subtask } from "@db/schema/subtask.schema";
 import { EditTask, SubtasksBlock, TaskContextMenu } from "@/components";
 import { useTasks } from "@/context";
 import SubtaskComponent from "./SubtaskComponent";
-import { updateTask } from "@db/task.query";
 
 const TaskComponent = (props: {
   order: number;
@@ -223,7 +222,7 @@ const TaskComponent = (props: {
           <p className="text-gray-400 text-sm">
             {formatEstimate(task?.estimate)}
           </p>
-          <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
+          <p className="text-gray-400 text-sm">{formatProgress(progress.current)}</p>
         </div>
 
         <SubtasksBlock

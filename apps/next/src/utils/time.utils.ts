@@ -28,7 +28,7 @@ export const formatEstimate = (estimate: number) => {
   const minutes = Math.floor((estimate % 3600) / 60);
   // Write as 1h30m
 
-  if (estimate > 3600) {
+  if (estimate >= 3600) {
     return `${hours}hr ${minutes}min`;
   }
 
