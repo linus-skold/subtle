@@ -204,9 +204,9 @@ const TaskComponent = (props: {
               onClick={() => props.onStart?.(task.id)}
             />
 
-            {/* <TaskContextMenu
+            <TaskContextMenu
               edit={openEditTask}
-              start={() => setActiveTask(task.id)}
+              start={() => props.onStart?.(task.id)}
               complete={() => {
                 setIsCompleting(true);
                 setTimeout(() => {
@@ -216,7 +216,7 @@ const TaskComponent = (props: {
               deleteTask={() => props.onDelete?.()}
               onClose={() => setContextMenuOpen(false)}
               onClick={() => setContextMenuOpen(true)}
-            /> */}
+            />
           </div>
         </div>
         <div className="flex justify-between transition-opacity duration-200">
