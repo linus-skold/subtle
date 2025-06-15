@@ -1,7 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { useTasks } from "../context/TaskContext";
 import {
   CheckCircleIcon,
   DocumentTextIcon,
@@ -10,16 +9,15 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 
-import type { Task } from "../../../types/task.types";
-
 import { formatEstimate, formatProgress } from "../utils/time.utils";
 
-import type { Subtask } from "../../../types/subtask.types";
-import { 
-  EditTask ,
-  SubtasksBlock, 
-  TaskContextMenu
-} from "@/components";
+import type { Task } from "@db/schema/task.schema";
+import type { Subtask } from "@db/schema/subtask.schema";
+
+import { EditTask, SubtasksBlock, TaskContextMenu } from "@/components";
+import { useTasks } from "@/context";
+import SubtaskComponent from "./SubtaskComponent";
+import { ta } from "zod/dist/types/v4/locales";
 
 const TaskComponent = (props: {
   order: number;
@@ -36,16 +34,17 @@ const TaskComponent = (props: {
 
   const { order } = props;
 
-  const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
+  const [subtasksList, setSubtasks] = useState<Subtask[]>(null);
   const [task, setTask] = useState<Task | null>(null);
 
   const [isHovered, setIsHovered] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
-  
+
   const progress = useRef(0);
-  
+
+  const taskContext = useTasks();
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -57,31 +56,49 @@ const TaskComponent = (props: {
     setIsHovered(value);
   };
 
+  const updateSubtask = (subtask: Subtask) => {
+    taskContext.taskService
+      .updateSubtask(subtask)
+      .then((updated: Subtask) => {
+        setSubtasks((prev) =>
+          prev ? prev.map((s) => (s.id === updated.id ? updated : s)) : [],
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
+  const deleteSubtask = (id: number) => {
+    taskContext.taskService
+      .deleteSubtask(id)
+      .then(() => {
+        setSubtasks((prev) => (prev ? prev.filter((s) => s.id !== id) : []));
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
   const openEditTask = () => {
     setEditTaskOpen(true);
     checkIsHovered(false);
   };
 
   useEffect(() => {
-    if (props.task) {
-
-      setTask(props.task);
-      progress.current = props.task.progress ?? 0;
-      // setProgress(props.task.progress);
-
-      // getSubtasksByTaskId(props.task.id)
-      //   .then((tasks) => {
-      //     if (tasks?.length === 0) {
-      //       setSubtasks(null);
-      //     } else {
-      //       setSubtasks(tasks);
-      //     }
-      //   })
-      //   .catch((err: unknown) => {
-      //     console.error(err);
-      //   });
-    }
-  }, [props.task]);
+    setTask(props.task);
+    progress.current = props.task.progress ?? 0;
+    taskContext.taskService
+      .getSubtasks(props.task.id)
+      .then((tasks: Subtask[]) => {
+        if(tasks && tasks.length > 0) {
+          setSubtasks(tasks);
+        } 
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  }, [props.task.id]);
 
   useEffect(() => {
     if (!contextMenuOpen) {
@@ -92,7 +109,6 @@ const TaskComponent = (props: {
   if (!task) {
     return <></>;
   }
-
 
   return (
     <div
@@ -123,7 +139,6 @@ const TaskComponent = (props: {
                   setIsCompleting(true);
                   setTimeout(() => {
                     console.log("Completing task:", task.id);
-                    // updateTask(task.id, { completed: true, progress });
                     props.onComplete(task.id);
                   }, completeTime);
                 }}
@@ -179,22 +194,34 @@ const TaskComponent = (props: {
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
         </div>
 
-        {/* <SubtasksBlock
-          subtasks={subtasksList ?? []}
+        <SubtasksBlock
+          show={subtasksList !== null}
+          subtasks={subtasksList}
           parentId={task.id}
-          onSubtaskChange={() => {
-            getSubtasksByTaskId(task.id)
-              .then((tasks) => {
-                setSubtasks(tasks);
+          onAddSubtask={(subtask: Subtask) => {
+            taskContext.taskService
+              .createSubtask({ ...subtask, parentId: task.id })
+              .then((newSubtask: Subtask) => {
+                setSubtasks((prev) =>
+                  prev ? [...prev, newSubtask] : [newSubtask],
+                );
               })
               .catch((err: unknown) => {
                 console.error(err);
               });
           }}
-          show={subtasksList !== null}
-        />
+        >
+          {subtasksList?.map((subtask) => (
+            <SubtaskComponent
+              key={subtask.id}
+              subtask={subtask}
+              onChange={(subtask: Subtask) => updateSubtask(subtask)}
+              onRemove={(id: number) => deleteSubtask(id)}
+            />
+          ))}
+        </SubtasksBlock>
 
-        <EditTask
+        {/* <EditTask
           open={editTaskOpen}
           onClick={setEditTaskOpen}
           task={task}

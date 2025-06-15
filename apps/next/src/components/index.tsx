@@ -13,3 +13,5 @@ export { default as Task } from "./Task";
 export { default as EditTask } from "./EditTask";
 export { default as SubtasksBlock } from "./SubtasksBlock";
 export { default as TaskContextMenu } from "./TaskContextMenu";
+export { default as DonutProgressBar } from "./DonutProgressBar";
+export { default as InputComponent } from "./InputComponent";
