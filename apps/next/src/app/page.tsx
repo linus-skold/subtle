@@ -7,7 +7,6 @@ import { version } from "../../../../package.json";
 import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
 
 import {
-  App,
   ActiveTask,
   ActivityBar,
   AddTaskComponent,
@@ -26,12 +25,21 @@ import { useTasks } from "../context/TaskContext";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 
 import {
+  PencilIcon,
+  HomeIcon,
+  Cog6ToothIcon,
+  InboxIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
+
+import {
   SortableContext,
   arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
 import type { Task } from "@db/schema/task.schema";
+import NotesComponent from "@/components/NotesComponent";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -50,6 +58,8 @@ export default function Home() {
   const { state, updateState } = useAppContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
+
+  const [noteMode, setNoteMode] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task>(null);
@@ -164,62 +174,83 @@ export default function Home() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-        <App>
-          {!state.isFocusMode && <TitlebarComponent />}
-          <div className="flex flex-col h-screen gap-4 p-4">
-            <ActivityBar />
-            {activeTask && <ActiveTask task={activeTask} onComplete={completeTask} />}
+        <main id="app" className={`h-screen select-none flex flex-col`}>
+          {!state.isFocusMode && (
+            <div className="shrink-0 h-6">
+              {" "}
+              <TitlebarComponent />
+            </div>
+          )}
 
-            <ProgressBar progress={progress} text={progressText} />
-            <TaskList className="min-h-0 max-h-[75%]">
-              {tasks.length > 0 &&
-                tasks
-                  .filter((task) => !task.completed && !task?.active)
-                  .map((task, index) => (
-                    <TaskComponent
-                      key={task.id}
-                      order={index + 1}
-                      task={task}
-                      taskId={task.id}
-                      onDelete={() => removeTask(task.id)}
-                      onComplete={() =>
-                        updateTask({
-                          ...task,
-                          completed: true,
-                        })
-                      }
-                      onStart={(taskId) => {
-                        const taskToStart = tasks.find((t) => t.id === taskId);
-                        console.log("Starting task:", taskToStart);
-                        if (taskToStart) {
-                          setTasks((prevTasks) =>
-                            prevTasks.map((t) =>
-                              t.id === taskToStart.id
-                                ? { ...t, active: true }
-                                : { ...t, active: false },
-                            ),
-                          );
-                          setActiveTask(taskToStart);
+          <div className="flex flex-1 overflow-hidden">
+            <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8">
+              <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+              <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+              <PencilIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
+              <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
+            </div>
+
+            {/* <NotesComponent /> */}
+            
+            <div className="flex-1 flex flex-col h-screen gap-4 p-4">
+              <ActivityBar />
+              {activeTask && (
+                <ActiveTask task={activeTask} onComplete={completeTask} />
+              )}
+
+              <ProgressBar progress={progress} text={progressText} />
+              <TaskList className="min-h-0 max-h-[75%]">
+                {tasks.length > 0 &&
+                  tasks
+                    .filter((task) => !task.completed && !task?.active)
+                    .map((task, index) => (
+                      <TaskComponent
+                        key={task.id}
+                        order={index + 1}
+                        task={task}
+                        taskId={task.id}
+                        onDelete={() => removeTask(task.id)}
+                        onComplete={() =>
+                          updateTask({
+                            ...task,
+                            completed: true,
+                          })
                         }
-                      }}
-                    />
-                  ))}
-            </TaskList>
+                        onStart={(taskId) => {
+                          const taskToStart = tasks.find(
+                            (t) => t.id === taskId,
+                          );
+                          console.log("Starting task:", taskToStart);
+                          if (taskToStart) {
+                            setTasks((prevTasks) =>
+                              prevTasks.map((t) =>
+                                t.id === taskToStart.id
+                                  ? { ...t, active: true }
+                                  : { ...t, active: false },
+                              ),
+                            );
+                            setActiveTask(taskToStart);
+                          }
+                        }}
+                      />
+                    ))}
+              </TaskList>
 
-            <AddTaskComponent
-              className="flex flex-col gap-2 shrink-0"
-              onAdd={addTask}
-            >
-              <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
-            </AddTaskComponent>
-            <TaskList className="flex-[1_1_25%]">
-              {tasks.length > 0 &&
-                tasks
-                  .filter((task) => task.completed)
-                  .map((task) => <CompletedTask key={task.id} task={task} />)}
-            </TaskList>
-            <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
-              <p className="text-sm">{version}</p>
+              <AddTaskComponent
+                className="flex flex-col gap-2 shrink-0"
+                onAdd={addTask}
+              >
+                <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
+              </AddTaskComponent>
+              <TaskList className="flex-[1_1_25%]">
+                {tasks.length > 0 &&
+                  tasks
+                    .filter((task) => task.completed)
+                    .map((task) => <CompletedTask key={task.id} task={task} />)}
+              </TaskList>
+              <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
+                <p className="text-sm">{version}</p>
+              </div>
             </div>
           </div>
 
@@ -229,7 +260,7 @@ export default function Home() {
               updateState({ isSettingsModalOpen: false });
             }}
           />
-        </App>
+        </main>
       </SortableContext>
     </DndContext>
   );

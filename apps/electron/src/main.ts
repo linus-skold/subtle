@@ -1,9 +1,12 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-
-
-import { createTask, getTasks, updateTask } from "../../db/task.query.js";
 import { fileURLToPath } from 'url';
 import path from 'path';
+
+
+
+import { taskHandles, noteHandles } from "./handles";
+
+
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -11,11 +14,6 @@ export const __dirname = path.dirname(__filename);
 
 console.log("Starting Electron app...");
 
-getTasks().then((tasks) => {
-  console.log("Tasks loaded from database:", tasks);
-}).catch((error: unknown) => {
-  console.error("Error loading tasks from database:", error);
-});
 
 async function waitForServer(url: string, retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
@@ -61,41 +59,16 @@ const createWindow = async () => {
       .catch((err: unknown) => console.error(err)); // Adjust the URL as needed for your dev server
   }
   mainWindow.webContents.openDevTools({ mode: 'detach' });
+  
+  noteHandles.setup();
+  taskHandles.setup();
+
 
   ipcMain.on("close-window", () => {
     mainWindow.close();
     app.quit();
   });
 
-  ipcMain.handle("get-tasks", async () => {
-    try {
-      const tasks = await getTasks();
-      return tasks;
-    } catch (error: unknown) {
-      console.error("Error fetching tasks:", error);
-      throw error; // Re-throw to handle in renderer
-    }
-  });
-
-  ipcMain.handle("create-task", async (event, task) => {
-    try {
-      const createdTask = await createTask(task);
-      return createdTask;
-    } catch (error: unknown) {
-      console.error("Error creating task:", error);
-      throw error; // Re-throw to handle in renderer
-    }
-  });
-
-  ipcMain.handle("update-task", async (event, task) => {
-    try {
-      const updatedTask = await updateTask(task);
-      return updatedTask;
-    } catch (error: unknown) {
-      console.error("Error updating task:", error);
-      throw error; // Re-throw to handle in renderer
-    }
-  });
 
 
 };
