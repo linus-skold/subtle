@@ -9,7 +9,7 @@ const taskService = {
   getTasks: () => window.electronAPI.invoke("get-tasks"),
   createTask: (task: Task) => window.electronAPI.invoke("create-task", task),
   updateTask: (task: Task) => window.electronAPI.invoke("update-task", task),
-  deleteTask: (taskId: string) =>
+  deleteTask: (taskId: number) =>
     window.electronAPI.invoke("delete-task", taskId),
 };
 

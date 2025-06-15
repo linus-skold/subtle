@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export const TitlebarComponent = () => {
+const TitlebarComponent = () => {
   return (
     <div
       className="top-0 left-0 flex justify-end items-center w-full h-6 bg-gray-800 " style={{ WebkitAppRegion: "drag" }}
@@ -17,3 +17,6 @@ export const TitlebarComponent = () => {
     </div>
   );
 };
+
+
+export default TitlebarComponent;

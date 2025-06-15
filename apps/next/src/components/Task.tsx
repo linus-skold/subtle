@@ -8,16 +8,18 @@ import {
   PlayIcon,
   QueueListIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { Task } from "../../../types/task.types";
 
 import { formatEstimate, formatProgress } from "../utils/time.utils";
 
 import type { Subtask } from "../../../types/subtask.types";
-import EditTask from "./EditTask";
-import SubtasksBlock from "./SubtasksBlock";
-import TaskContextMenu from "./TaskContextMenu";
+import { 
+  EditTask ,
+  SubtasksBlock, 
+  TaskContextMenu
+} from "@/components";
 
 const TaskComponent = (props: {
   order: number;
@@ -34,15 +36,16 @@ const TaskComponent = (props: {
 
   const { order } = props;
 
+  const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
+  const [task, setTask] = useState<Task | null>(null);
+
   const [isHovered, setIsHovered] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
-  const [task, setTask] = useState<Task | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [subtasksList, setSubtasks] = useState<Subtask[] | null>(null);
-
-  const { updateTask, setActiveTask, getSubtasksByTaskId } = useTasks();
+  
+  const progress = useRef(0);
+  
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -61,22 +64,24 @@ const TaskComponent = (props: {
 
   useEffect(() => {
     if (props.task) {
-      setTask(props.task);
-      setProgress(props.task.progress);
 
-      getSubtasksByTaskId(props.task.id)
-        .then((tasks) => {
-          if (tasks?.length === 0) {
-            setSubtasks(null);
-          } else {
-            setSubtasks(tasks);
-          }
-        })
-        .catch((err: unknown) => {
-          console.error(err);
-        });
+      setTask(props.task);
+      progress.current = props.task.progress ?? 0;
+      // setProgress(props.task.progress);
+
+      // getSubtasksByTaskId(props.task.id)
+      //   .then((tasks) => {
+      //     if (tasks?.length === 0) {
+      //       setSubtasks(null);
+      //     } else {
+      //       setSubtasks(tasks);
+      //     }
+      //   })
+      //   .catch((err: unknown) => {
+      //     console.error(err);
+      //   });
     }
-  }, [props.task, getSubtasksByTaskId]);
+  }, [props.task]);
 
   useEffect(() => {
     if (!contextMenuOpen) {
@@ -87,6 +92,7 @@ const TaskComponent = (props: {
   if (!task) {
     return <></>;
   }
+
 
   return (
     <div
@@ -116,7 +122,9 @@ const TaskComponent = (props: {
                   e.stopPropagation();
                   setIsCompleting(true);
                   setTimeout(() => {
-                    updateTask(task.id, { completed: true, progress });
+                    console.log("Completing task:", task.id);
+                    // updateTask(task.id, { completed: true, progress });
+                    props.onComplete(task.id);
                   }, completeTime);
                 }}
               />
@@ -146,22 +154,22 @@ const TaskComponent = (props: {
             />
             <PlayIcon
               className="h-5 w-5 text-gray-400 hover:text-green-400"
-              onClick={() => setActiveTask(task.id)}
+              onClick={() => props.onStart?.(task.id)}
             />
 
-            <TaskContextMenu
+            {/* <TaskContextMenu
               edit={openEditTask}
               start={() => setActiveTask(task.id)}
               complete={() => {
                 setIsCompleting(true);
                 setTimeout(() => {
-                  updateTask(task.id, { completed: true, progress });
+                  // updateTask(task.id, { completed: true, progress });
                 }, completeTime);
               }}
               deleteTask={() => props.onDelete?.()}
               onClose={() => setContextMenuOpen(false)}
               onClick={() => setContextMenuOpen(true)}
-            />
+            /> */}
           </div>
         </div>
         <div className="flex justify-between transition-opacity duration-200">
@@ -171,7 +179,7 @@ const TaskComponent = (props: {
           <p className="text-gray-400 text-sm">{formatProgress(progress)}</p>
         </div>
 
-        <SubtasksBlock
+        {/* <SubtasksBlock
           subtasks={subtasksList ?? []}
           parentId={task.id}
           onSubtaskChange={() => {
@@ -211,7 +219,7 @@ const TaskComponent = (props: {
             }
           }}
           subtasks={subtasksList ?? []}
-        />
+        /> */}
 
         <div
           className="absolute top-0 left-0 w-full h-full z-10"

@@ -1,10 +1,10 @@
 import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core"
-import { createSelectSchema } from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from "zod/v4";
 
 
 export const tasks = sqliteTable('tasks', {
-  id: integer(),
+  id: integer().primaryKey({ autoIncrement: true }),
   title: text().notNull(),
   estimate: integer().default(0),
   progress: integer().default(0),
@@ -20,6 +20,23 @@ export const tasks = sqliteTable('tasks', {
 });
 
 
-export const TaskSelectSchema = createSelectSchema(tasks);
+export const TaskInsertSchema = createInsertSchema(tasks).extend({
+  title: z.string(),
+  completed: z.boolean().transform((val) => (val ? 'true' : 'false')).optional(),
+  archived: z.boolean().transform((val) => (val ? 'true' : 'false')).optional(),
+})
+export type TaskInsert = z.infer<typeof TaskInsertSchema>;
 
-export type Task = z.infer<typeof TaskSelectSchema & {active: boolean, overtime: boolean}>;
+export const TaskUpdateSchema = createUpdateSchema(tasks);
+export type TaskUpdate = z.infer<typeof TaskUpdateSchema>;
+
+
+export const TaskSelectSchema = createSelectSchema(tasks, {
+  completed: z.stringbool(),
+  archived: z.stringbool(),
+}).extend({
+  active: z.boolean().default(false),
+  overtime: z.boolean().default(false),
+});
+
+export type Task = z.infer<typeof TaskSelectSchema>;
