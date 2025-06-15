@@ -272,7 +272,6 @@ export default function Home() {
                           const taskToStart = tasks.find(
                             (t) => t.id === taskId,
                           );
-                          console.log("Starting task:", taskToStart);
                           if (taskToStart) {
                             setTasks((prevTasks) =>
                               prevTasks.map((t) =>

@@ -4,13 +4,21 @@ import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import type { Task } from "@db/schema/task.schema";
+import { Subtask } from "@db/schema/subtask.schema";
 
 const taskService = {
   getTasks: () => window.electronAPI.invoke("get-tasks"),
   createTask: (task: Task) => window.electronAPI.invoke("create-task", task),
   updateTask: (task: Task) => window.electronAPI.invoke("update-task", task),
-  deleteTask: (taskId: number) =>
-    window.electronAPI.invoke("delete-task", taskId),
+  deleteTask: (taskId: number) => window.electronAPI.invoke("delete-task", taskId),
+  getSubtasks: (taskId: number) =>
+    window.electronAPI.invoke("get-subtasks", taskId),
+  createSubtask: (subtask: Subtask) =>
+    window.electronAPI.invoke("create-subtask", subtask),
+  deleteSubtask: (subtaskId: number) =>
+    window.electronAPI.invoke("delete-subtask", subtaskId),
+  updateSubtask: (subtask: Subtask) =>
+    window.electronAPI.invoke("update-subtask", subtask),
 };
 
 type TaskService = typeof taskService;
