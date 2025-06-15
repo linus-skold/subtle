@@ -32,6 +32,9 @@ const AddTaskComponent = ({
       return;
     }
 
+    console.log("Adding task:", taskName, "with estimate:", parsedEstimate * 60);
+
+
     onAdd({
       title: taskName,
       estimate: parsedEstimate * 60,
