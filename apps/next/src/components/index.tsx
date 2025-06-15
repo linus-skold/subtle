@@ -15,3 +15,4 @@ export { default as SubtasksBlock } from "./SubtasksBlock";
 export { default as TaskContextMenu } from "./TaskContextMenu";
 export { default as DonutProgressBar } from "./DonutProgressBar";
 export { default as InputComponent } from "./InputComponent";
+export { default as Link } from "./Link";
