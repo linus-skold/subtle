@@ -5,11 +5,13 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 import { parseEstimate } from "../utils/time.utils";
+import type { Task } from "@db/schema/index.schema";
 
 const AddTaskComponent = ({
   className,
   children,
-}: { className?: string; children?: React.ReactNode }) => {
+  onAdd,
+}: { className?: string; children?: React.ReactNode; onAdd: (newTask: Task) => void }) => {
   const [addingTask, setAddingTask] = useState(false);
   const [taskName, setTaskName] = useState("");
   const [taskEstimateString, setTaskEstimateString] = useState<string>("00:05");
@@ -30,19 +32,20 @@ const AddTaskComponent = ({
       return;
     }
 
-    // taskService.createTask({
-    //   title: taskName,
-    //   estimate: parsedEstimate * 60,
-    //   progress: 0,
-    //   completed: false,
-    //   created_at: new Date().toISOString(),
-    //   updated_at: new Date().toISOString(),
-    //   description: "",
-    //   archived: false,
-    //   task_list_id: 0,
-    //   tags: [],
-    //   priority: "none"
-    // });
+    onAdd({
+      title: taskName,
+      estimate: parsedEstimate * 60,
+      progress: 0,
+      completed: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      description: "",
+      archived: false,
+      task_list_id: 0,
+      priority: "none"
+    })
+
+    // taskService.createTask();
 
     setTaskName("");
     setTaskEstimateString("00:05");

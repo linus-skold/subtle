@@ -1,4 +1,4 @@
-export const App = ({
+const App = ({
   children,
   className,
 }: { children: React.ReactNode; className?: string }) => {
@@ -8,3 +8,5 @@ export const App = ({
     </main>
   );
 };
+
+export default App;
