@@ -1,47 +1,36 @@
-import { useTasks } from "../context/TaskContext";
-import type { Subtask } from "../../../types/subtask.types";
-import type { PartialTask, Task } from "../../../types/task.types";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
-import Link from "./Link";
-import SubtasksBlock from "./SubtasksBlock";
+
+import { Link, SubtasksBlock } from "@/components";
+
+import type { Subtask } from "@db/schema/subtask.schema";
+import type { Task } from "@db/schema/task.schema";
+import SubtaskComponent from "./SubtaskComponent";
 
 const EditTask = (props: {
   task: Task;
   open: boolean;
-  onClick: (v: boolean) => void;
-  onChange?: ({
-    taskData,
-    subtaskData,
-  }: {
-    taskData?: PartialTask;
-    subtaskData?: Subtask[];
-  }) => void;
+  isOpen: (v: boolean) => void;
+  removeSubtask: (id: number) => void;
+  updateSubtask: (subtask: Subtask) => void;
+  addSubtask?: (subtask: Subtask) => void;
+  updateTask?: (task: Task) => void;
   subtasks?: Subtask[];
 }) => {
-  const { open, onClick, onChange } = props;
+  const { open, isOpen } = props;
   const [task, setTask] = useState<Task>();
-  const [subtasksState, setSubtasks] = useState<Subtask[]>([]);
-  const { getSubtasksByTaskId } = useTasks();
-  const wasOpen = useRef(false);
+
 
   useEffect(() => {
-    if (!open || wasOpen.current) return;
-    if (open && props.subtasks) {
-      setSubtasks(props.subtasks);
-    }
-    if (open && props.task) {
-      setTask(props.task);
-    }
-    if (open && !wasOpen.current) {
-      wasOpen.current = true;
-    }
-  }, [open, props.subtasks, props.task]);
+    setTask(props.task);
+  }, [props.task.id]);
+
 
   const onClose = () => {
-    onClick(false);
-    onChange?.({ subtaskData: subtasksState, taskData: task });
+    isOpen(false);
+    props.updateTask?.(task);
+  
   };
 
   const getUrlsFromText = (text: string): string[] => {
@@ -86,7 +75,7 @@ const EditTask = (props: {
           />
         </div>
         <textarea
-          className="w-full h-32 bg-gray-800 text-white p-2 rounded-lg mt-4"
+          className="w-full h-32 bg-gray-800 text-white p-2 rounded-lg mt-4 outline-none"
           placeholder="Edit task description"
           value={task.description}
           onChange={(e) => {
@@ -110,20 +99,21 @@ const EditTask = (props: {
         </ul>
 
         <SubtasksBlock
-          subtasks={subtasksState}
+          subtasks={props.subtasks}
           parentId={task.id}
-          onSubtaskChange={() => {
-            getSubtasksByTaskId(task.id)
-              .then((tasks) => {
-                setSubtasks(tasks);
-              })
-              .catch((err: unknown) => {
-                console.error(err);
-              });
-          }}
-          show={subtasksState !== null}
+          show={props.subtasks !== null}
           expanded={true}
-        />
+          onAddSubtask={(subtask: Subtask) => props.addSubtask?.(subtask)}
+        >
+          {props.subtasks?.map((subtask) => (
+            <SubtaskComponent
+              key={subtask.id}
+              subtask={subtask}
+              onChange={(subtask: Subtask) => props.updateSubtask(subtask)}
+              onRemove={(id: number) => props.removeSubtask(id)}
+            />
+          ))}
+        </SubtasksBlock>
       </DialogPanel>
     </Dialog>
   );
