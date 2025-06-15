@@ -40,38 +40,41 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
 
   // const previousTaskId = useRef<number | null>(null);
 
-  // useEffect(() => {
-  //   if (
-  //     previousTaskId.current !== null &&
-  //     previousTaskId.current !== activeTask
-  //   ) {
-  //     updateTask(previousTaskId.current, {
-  //       active: false,
-  //       overtime: overtimeRef.current,
-  //       progress: taskTimerRef.current,
-  //     });
-  //   }
+  useEffect(() => {
+    // if (
+    //   previousTaskId.current !== null &&
+    //   previousTaskId.current !== activeTask
+    // ) {
+    //   updateTask(previousTaskId.current, {
+    //     active: false,
+    //     overtime: overtimeRef.current,
+    //     progress: taskTimerRef.current,
+    //   });
+    // }
 
-  //   if (activeTask !== null) {
-  //     updateTask(activeTask, {
-  //       active: true,
-  //     });
+    // if (activeTask !== null) {
+    //   updateTask(activeTask, {
+    //     active: true,
+    //   });
 
-  //     const current = getTaskById(activeTask);
-  //     if (!current) return;
-  //     const startingTimer =
-  //       current.progress > 0 ? current.progress : current.estimate;
+    //   const current = getTaskById(activeTask);
+    //   if (!current) return;
 
-  //     setTaskTimer(startingTimer);
-  //     taskTimerRef.current = startingTimer;
+    //   setTaskTimer(startingTimer);
+    //   taskTimerRef.current = startingTimer;
 
-  //     const isOvertime = current.overtime;
-  //     setOvertime(isOvertime);
-  //     overtimeRef.current = isOvertime;
-  //   }
+    //   const isOvertime = current.overtime;
+    //   setOvertime(isOvertime);
+    //   overtimeRef.current = isOvertime;
+    // }
 
-  //   previousTaskId.current = activeTask;
-  // }, [activeTask, updateTask, getTaskById]);
+      const startingTimer =
+        props.task.progress > 0 ? props.task.progress : props.task.estimate;
+    setTaskTimer(startingTimer);
+    setOvertime(props.task.progress > props.task.estimate);
+    taskTimerRef.current = startingTimer ?? 0;
+
+  }, [props.task.id]);
 
   useEffect(() => {
     if (!isPaused) {
