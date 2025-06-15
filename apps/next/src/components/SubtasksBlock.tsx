@@ -1,29 +1,25 @@
 import React, { useState } from "react";
+import type { Subtask } from "@db/schema/subtask.schema";
 
-import SubtaskComponent from "./SubtaskComponent";
-import type { Subtask } from "../../../types/subtask.types";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import ProgressDonut from "./DonutProgressBar";
-import InputComponent from "./InputComponent";
 
-import { useTasks } from "../context/TaskContext";
+import { DonutProgressBar, InputComponent } from "@/components";
 
 const SubtasksBlock = ({
-  subtasks,
-  parentId,
-  onSubtaskChange,
   show,
+  subtasks,
+  onAddSubtask,
   expanded,
+  children,
 }: {
+  show?: boolean;
   subtasks: Subtask[];
   parentId: number;
-  onSubtaskChange: () => void;
-  show?: boolean;
+  onAddSubtask?: (subtask: Subtask) => void;
   expanded?: boolean;
+  children?: React.ReactNode;
 }) => {
   const [subtasksOpen, setSubtasksOpen] = useState(expanded ?? false);
-
-  const { addSubtask } = useTasks();
 
   const [addingSubtasks, setAddingSubtasks] = useState(expanded ?? false);
 
@@ -33,6 +29,7 @@ const SubtasksBlock = ({
   const progress = subtasks?.length
     ? (100 * completedTasksCount) / subtasks.length
     : 0;
+
   if (!show) {
     return <></>;
   }
@@ -42,7 +39,7 @@ const SubtasksBlock = ({
       <hr className="w-full bg-gray-700 h-1 rounded-lg mt-2" />
       <div className="relative flex justify-between items-center mt-2 z-20">
         <div className="flex items-center space-x-2">
-          <ProgressDonut progress={progress} size={24} />
+          <DonutProgressBar progress={progress} size={24} />
           <p className="text-center text-gray-400 text-sm ml-2">
             {completedTasksCount}/{subtasks.length}
           </p>
@@ -66,17 +63,10 @@ const SubtasksBlock = ({
           <InputComponent<string>
             onKeyDown={(_, value) => {
               // add new subtask to database and tell parent to update
-              addSubtask(
-                parentId,
-                {
-                  subtask_name: value,
-                  completed: false,
-                  parent_task_id: parentId,
-                },
-                () => {
-                  onSubtaskChange();
-                },
-              );
+              onAddSubtask?.({
+                title: value,
+                completed: false,
+              } as Subtask);
             }}
             show={addingSubtasks}
             onClose={() => {
@@ -87,15 +77,7 @@ const SubtasksBlock = ({
           <div
             className={`flex flex-col space-y-2 mt-2 transition-opacity duration-200 ${subtasksOpen ? "block" : "hidden"}`}
           >
-            {subtasks?.map((subtask) => (
-              <SubtaskComponent
-                key={subtask.id}
-                subtask={subtask}
-                onChange={() => {
-                  onSubtaskChange();
-                }}
-              />
-            ))}
+            {children}
           </div>
         </div>
       )}

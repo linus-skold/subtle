@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 
 import { taskHandles, noteHandles } from "./handles";
+import subtaskHandles from "./handles/subtask.handles";
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -55,6 +56,7 @@ const createWindow = async () => {
 
   noteHandles.setup();
   taskHandles.setup();
+  subtaskHandles.setup();
 
   ipcMain.on("close-window", () => {
     mainWindow.close();
