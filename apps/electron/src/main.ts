@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 
 
-import { getTasks } from "../../db/task.query.js";
+import { createTask, getTasks, updateTask } from "../../db/task.query.js";
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -73,6 +73,26 @@ const createWindow = async () => {
       return tasks;
     } catch (error: unknown) {
       console.error("Error fetching tasks:", error);
+      throw error; // Re-throw to handle in renderer
+    }
+  });
+
+  ipcMain.handle("create-task", async (event, task) => {
+    try {
+      const createdTask = await createTask(task);
+      return createdTask;
+    } catch (error: unknown) {
+      console.error("Error creating task:", error);
+      throw error; // Re-throw to handle in renderer
+    }
+  });
+
+  ipcMain.handle("update-task", async (event, task) => {
+    try {
+      const updatedTask = await updateTask(task);
+      return updatedTask;
+    } catch (error: unknown) {
+      console.error("Error updating task:", error);
       throw error; // Re-throw to handle in renderer
     }
   });

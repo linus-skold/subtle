@@ -1,29 +1,37 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
 
 import { version } from "../../../../package.json";
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
 
-import ActiveTask from "../components/ActiveTask";
-import ActivityBar from "../components/ActivityBar";
-import AddTaskComponent from "../components/AddTask";
-import { App } from "../components/App";
-import CompletedTask from "../components/CompletedTask";
-import SettingsModal from "../components/SettingsModal";
-import Task from "../components/Task";
-import TaskList from "../components/TaskList";
-import { TitlebarComponent } from "../components/Titlebar";
+import {
+  App,
+  ActiveTask,
+  ActivityBar,
+  AddTaskComponent,
+  SettingsModal,
+  TaskList,
+  TaskComponent,
+  TitlebarComponent,
+  LoadingSpinner,
+  ProgressBar,
+  CompletedTask,
+} from "@/components";
 
 import { useAppContext } from "../context/AppContext";
 import { useTasks } from "../context/TaskContext";
+
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
+
 import {
   SortableContext,
   arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import LoadingSpinner from "../components/LoadingSpinner";
-
+import type { Task } from "@db/schema/task.schema";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -40,22 +48,30 @@ function useWindowSize() {
 
 export default function Home() {
   const { state, updateState } = useAppContext();
-  const taskContext = useTasks();
-  const { tasks, removeTask, setTasks, activeTask } = taskContext;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
 
-  useEffect(() => {
-    if (window.electronAPI) {
-      console.log("Electron API is loaded");
-    } else {
-      console.log("Electron API NOT available");
-    }
-  }, []);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [activeTask, setActiveTask] = useState<Task>(null);
+
+  const completedTasks = tasks.filter((task) => task.completed);
+  const completedTasksCount = completedTasks.length;
+  const progress = (completedTasksCount / tasks.length) * 100;
+  const progressText = `${completedTasksCount}/${tasks.length} DONE`;
+
+  const taskContext = useTasks();
 
   useEffect(() => {
     const startup = async () => {
       try {
+        taskContext.taskService
+          .getTasks()
+          .then((fetchedTasks) => {
+            setTasks(fetchedTasks as Task[]);
+          })
+          .catch((error: unknown) => {
+            console.error("Failed to fetch tasks:", error);
+          });
         setTimeout(() => {
           // Simulate a delay for startup
           setIsStartup(false);
@@ -109,41 +125,100 @@ export default function Home() {
     );
   }
 
+  const addTask = (newTask: Task) => {
+    taskContext.taskService
+      .createTask(newTask)
+      .then((result) => {
+        setTasks((prevTasks) => [...prevTasks, result]);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to create task:", error);
+      });
+  };
+
+  const removeTask = (taskId: number) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    taskContext.taskService.deleteTask(taskId).catch((error: unknown) => {
+      console.error("Failed to delete task:", error);
+    });
+  };
+
+  const updateTask = (updatedTask: Task) => {
+    taskContext.taskService
+      .updateTask({ ...updatedTask, completed: true })
+      .then((task) => {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t.id === task.id ? task : t)),
+        );
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to update task:", error);
+      });
+  };
+
+  const completeTask = (taskId: number) => {
+    updateTask(tasks.find((task) => task.id === taskId));
+    setActiveTask(null);
+  };
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <App>
           {!state.isFocusMode && <TitlebarComponent />}
-          <div className="flex flex-col h-full gap-4 m-4 ">
+          <div className="flex flex-col h-screen gap-4 p-4">
             <ActivityBar />
-            {activeTask && <ActiveTask />}
-            <TaskList maxHeight="50vh">
+            {activeTask && <ActiveTask task={activeTask} onComplete={completeTask} />}
+
+            <ProgressBar progress={progress} text={progressText} />
+            <TaskList className="min-h-0 max-h-[75%]">
               {tasks.length > 0 &&
                 tasks
-                  .filter((task) => !task.completed && !task.active)
+                  .filter((task) => !task.completed && !task?.active)
                   .map((task, index) => (
-                    <Task
+                    <TaskComponent
                       key={task.id}
                       order={index + 1}
                       task={task}
                       taskId={task.id}
-                      onDelete={() => {
-                        removeTask(task.id);
+                      onDelete={() => removeTask(task.id)}
+                      onComplete={() =>
+                        updateTask({
+                          ...task,
+                          completed: true,
+                        })
+                      }
+                      onStart={(taskId) => {
+                        const taskToStart = tasks.find((t) => t.id === taskId);
+                        console.log("Starting task:", taskToStart);
+                        if (taskToStart) {
+                          setTasks((prevTasks) =>
+                            prevTasks.map((t) =>
+                              t.id === taskToStart.id
+                                ? { ...t, active: true }
+                                : { ...t, active: false },
+                            ),
+                          );
+                          setActiveTask(taskToStart);
+                        }
                       }}
                     />
                   ))}
             </TaskList>
-            <AddTaskComponent className="flex flex-col gap-2">
+
+            <AddTaskComponent
+              className="flex flex-col gap-2 shrink-0"
+              onAdd={addTask}
+            >
               <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
             </AddTaskComponent>
-
-            <TaskList maxHeight="50vh">
+            <TaskList className="flex-[1_1_25%]">
               {tasks.length > 0 &&
                 tasks
                   .filter((task) => task.completed)
                   .map((task) => <CompletedTask key={task.id} task={task} />)}
             </TaskList>
-            <div className="bottom-0 left-0 w-full h-8 bg-[var(--background)] absolute items-center justify-center flex">
+            <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
               <p className="text-sm">{version}</p>
             </div>
           </div>
