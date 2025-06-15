@@ -1,19 +1,13 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-
+import { fileURLToPath } from "url";
+import path from "path";
 
 import { taskHandles, noteHandles } from "./handles";
-
-
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
-
 console.log("Starting Electron app...");
-
 
 async function waitForServer(url: string, retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
@@ -23,11 +17,10 @@ async function waitForServer(url: string, retries = 20, delay = 500) {
     } catch {
       console.error("Error fetching server");
     }
-    await new Promise(r => setTimeout(r, delay));
+    await new Promise((r) => setTimeout(r, delay));
   }
   throw new Error(`Server at ${url} not available after ${retries} attempts`);
 }
-
 
 const createWindow = async () => {
   console.log("Creating main window...");
@@ -58,22 +51,29 @@ const createWindow = async () => {
       .loadURL("http://localhost:3000")
       .catch((err: unknown) => console.error(err)); // Adjust the URL as needed for your dev server
   }
-  mainWindow.webContents.openDevTools({ mode: 'detach' });
-  
+  mainWindow.webContents.openDevTools({ mode: "detach" });
+
   noteHandles.setup();
   taskHandles.setup();
-
 
   ipcMain.on("close-window", () => {
     mainWindow.close();
     app.quit();
   });
 
+  ipcMain.handle(
+    "change-window-size",
+    (event, size) => {
+      mainWindow.setSize(size.width, size.height);
+    },
+  );
 
+  ipcMain.handle("get-window-size", () => {
+    const [width, height] = mainWindow.getSize();
+    return { width, height };
+  });
 
 };
-
-
 
 app
   .whenReady()
