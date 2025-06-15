@@ -17,7 +17,7 @@ import type { Subtask } from "@db/schema/subtask.schema";
 import { EditTask, SubtasksBlock, TaskContextMenu } from "@/components";
 import { useTasks } from "@/context";
 import SubtaskComponent from "./SubtaskComponent";
-import { ta } from "zod/dist/types/v4/locales";
+import { updateTask } from "@db/task.query";
 
 const TaskComponent = (props: {
   order: number;
@@ -78,6 +78,38 @@ const TaskComponent = (props: {
       .catch((err: unknown) => {
         console.error(err);
       });
+  };
+
+  const addSubtask = (subtask: Subtask) => {
+            taskContext.taskService
+              .createSubtask({ ...subtask, parentId: task.id })
+              .then((newSubtask: Subtask) => {
+                setSubtasks((prev) =>
+                  prev ? [...prev, newSubtask] : [newSubtask],
+                );
+              })
+              .catch((err: unknown) => {
+                console.error(err);
+              });
+  };
+
+  const updateTask = (updatedTask: Task) => {
+    taskContext.taskService
+      .updateTask(updatedTask)
+      .then((updated: Task) => {
+        setTask((prev) => {
+          if (prev) {
+            return { ...prev, ...updated };
+          }
+          return prev;
+        });
+        props.onChange?.(updated);
+      }
+      )
+      .catch((err: unknown) => {
+        console.error(err);
+      }
+    );
   };
 
   const openEditTask = () => {
@@ -221,32 +253,16 @@ const TaskComponent = (props: {
           ))}
         </SubtasksBlock>
 
-        {/* <EditTask
+        <EditTask
           open={editTaskOpen}
-          onClick={setEditTaskOpen}
+          isOpen={setEditTaskOpen}
           task={task}
-          onChange={({ taskData, subtaskData }) => {
-            if (subtaskData) {
-              setSubtasks(subtaskData);
-            }
-            if (taskData) {
-              setTask((prev) => {
-                if (prev) {
-                  return { ...prev, ...taskData };
-                }
-                return null;
-              });
-              props.onChange?.({ ...task, ...taskData });
-              updateTask(task.id, {
-                ...taskData,
-                progress: task.progress,
-                completed: task.completed,
-                active: task.active,
-              });
-            }
-          }}
           subtasks={subtasksList ?? []}
-        /> */}
+          removeSubtask={(id: number) => deleteSubtask(id)}
+          addSubtask={(subtask: Subtask) => addSubtask(subtask)}
+          updateSubtask={(subtask: Subtask) => updateSubtask(subtask)}
+          updateTask={(updatedTask: Task) => updateTask(updatedTask)}
+        />
 
         <div
           className="absolute top-0 left-0 w-full h-full z-10"
