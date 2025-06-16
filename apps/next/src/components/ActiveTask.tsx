@@ -15,61 +15,20 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
     return <></>;
   }
 
+  const [subtasks, setSubtasks] = useState([]);
 
   const [isHovered, setIsHovered] = useState(false);
-
   const [isPaused, setIsPaused] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
-  const [subtasks, setSubtasks] = useState([]);
-  const intervalRef = useRef<number | null>(null);
-
-
-  // if(activeTask === null) {
-  //   return <></>;
-  // }
-
-  // if (activeTask !== null) {
-  //   currentTask.current = getTaskById(activeTask);
-  // }
-
   const [overtime, setOvertime] = useState(false);
   const [taskTimer, setTaskTimer] = useState(0);
-
+  
+  const intervalRef = useRef<number | null>(null);
   const taskTimerRef = useRef(0);
   const overtimeRef = useRef(false);
 
-  // const previousTaskId = useRef<number | null>(null);
-
   useEffect(() => {
-    // if (
-    //   previousTaskId.current !== null &&
-    //   previousTaskId.current !== activeTask
-    // ) {
-    //   updateTask(previousTaskId.current, {
-    //     active: false,
-    //     overtime: overtimeRef.current,
-    //     progress: taskTimerRef.current,
-    //   });
-    // }
-
-    // if (activeTask !== null) {
-    //   updateTask(activeTask, {
-    //     active: true,
-    //   });
-
-    //   const current = getTaskById(activeTask);
-    //   if (!current) return;
-
-    //   setTaskTimer(startingTimer);
-    //   taskTimerRef.current = startingTimer;
-
-    //   const isOvertime = current.overtime;
-    //   setOvertime(isOvertime);
-    //   overtimeRef.current = isOvertime;
-    // }
-
-      const startingTimer =
-        props.task.progress > 0 ? props.task.progress : props.task.estimate;
+    const startingTimer = props.task.progress > 0 ? props.task.progress : props.task.estimate;
     setTaskTimer(startingTimer);
     setOvertime(props.task.progress > props.task.estimate);
     taskTimerRef.current = startingTimer ?? 0;
