@@ -173,6 +173,7 @@ export default function Home() {
   };
 
   const toggleNoteMode = () => {
+    setSettingsOpen(false);
     const nextMode = !isEditingNote;
     if( nextMode === false ) {
       setIsEditingNote(false);
@@ -212,11 +213,17 @@ export default function Home() {
                 className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"
                 onClick={toggleNoteMode}
               />
-              <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
+              <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " onClick={() => setSettingsOpen(true)} />
             </div>
             <SlideoutComponent isOpen={isEditingNote} onClose={toggleNoteMode}>
               <NotesComponent />
             </SlideoutComponent>
+
+            <SlideoutComponent isOpen={settingsOpen} onClose={() => setSettingsOpen(false)}>
+              <SettingsModal /> 
+            </SlideoutComponent>
+
+
 
             <div className="flex-1 flex flex-col h-screen gap-4 p-4">
               <ActivityBar />
@@ -280,12 +287,6 @@ export default function Home() {
 
           </div>
 
-          <SettingsModal
-            isOpen={settingsOpen}
-            onClick={() => {
-              updateState({ isSettingsModalOpen: false });
-            }}
-          />
         </main>
       </SortableContext>
     </DndContext>
