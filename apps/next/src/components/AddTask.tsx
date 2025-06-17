@@ -99,7 +99,7 @@ const AddTaskComponent = ({
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
               placeholder="Task"
-              className={`border ${error ? "border-red-500" : "border-green-400"} rounded-md p-2 w-full placeholder:text-sm`}
+              className={`border ${error ? "border-red-500" : "border-green-400"} outline-none rounded-md p-2 w-full placeholder:text-sm`}
             />
             <input
               type="text"
@@ -108,7 +108,7 @@ const AddTaskComponent = ({
                 setTaskEstimateString(e.target.value);
               }}
               placeholder="hh:mm"
-              className="border border-green-400 rounded-md p-2 w-16 placeholder:text-sm"
+              className="border border-green-400 rounded-md p-2 w-16 placeholder:text-sm outline-none"
             />
           </div>
           <div className="flex justify-end">
