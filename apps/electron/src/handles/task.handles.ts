@@ -1,7 +1,8 @@
 import { ipcMain } from "electron";
 
+import type { TaskInsert, TaskUpdate } from "@db/schema/task.schema";
 
-import { createTask, updateTask, getTasks } from "@db/task.query";
+import { createTask, updateTask, getTasks, deleteTask } from "@db/task.query";
 
 const setup = () => {
   ipcMain.handle("get-tasks", async () => {
@@ -14,7 +15,7 @@ const setup = () => {
     }
   });
 
-  ipcMain.handle("create-task", async (event, task) => {
+  ipcMain.handle("create-task", async (event, task: TaskInsert) => {
     try {
       const createdTask = await createTask(task);
       return createdTask;
@@ -24,7 +25,7 @@ const setup = () => {
     }
   });
 
-  ipcMain.handle("update-task", async (event, task) => {
+  ipcMain.handle("update-task", async (event, task: TaskUpdate) => {
     try {
       const updatedTask = await updateTask(task);
       return updatedTask;
@@ -33,6 +34,18 @@ const setup = () => {
       throw error; // Re-throw to handle in renderer
     }
   });
+
+  ipcMain.handle("delete-task", async (event, taskId: number) => {
+    try {
+      // Assuming you have a deleteTask function in your task.query module
+      const deletedTask = await deleteTask(taskId);
+      return deletedTask;
+    } catch (error: unknown) {
+      console.error("Error deleting task:", error);
+      throw error; // Re-throw to handle in renderer
+    }
+  });
+
 };
 
 export default { setup };

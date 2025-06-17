@@ -1,21 +1,12 @@
 import { useAppContext } from "../context/AppContext";
 import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
   Field,
   Label,
 } from "@headlessui/react";
-import { XCircleIcon } from "@heroicons/react/24/outline";
-import ToggleComponent from "./ToggleComponent";
 
-const SettingsModal = ({
-  isOpen,
-  onClick,
-}: {
-  isOpen: boolean;
-  onClick: (v: boolean) => void;
-}) => {
+import { ToggleComponent } from '@/components'
+
+const SettingsModal = () => {
   const { state, updateAppSettings } = useAppContext();
 
   const appSettings = state.appSettings;
@@ -29,28 +20,8 @@ const SettingsModal = ({
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      as="div"
-      className="fixed top-6 left-0 w-screen focus:outline-none flex min-h-full "
-      onClose={() => onClick(false)}
-    >
-      <DialogPanel
-        transition
-        className="
-        w-full max-w-full bg-white/5 p-6 backdrop-blur-2xl 
-        duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
-      >
-        <div className="flex justify-between">
-          <DialogTitle as="h3" className="text-base/7 font-bold text-white">
-            SETTINGS
-          </DialogTitle>
-          <XCircleIcon
-            className="h-6 w-6 text-white text-gray-800 hover:text-gray-500 transition-colors"
-            onClick={() => onClick(false)}
-          />
-        </div>
-
+    <>
+   
         <div className="flex flex-col gap-2 border-t border-gray-700 pt-2 mt-2">
           <ToggleComponent
             text="Always on top"
@@ -79,8 +50,8 @@ const SettingsModal = ({
             onChange={setAlwaysOnTop}
           />
         </div>
-      </DialogPanel>
-    </Dialog>
+    </>
+
   );
 };
 export default SettingsModal;
