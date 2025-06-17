@@ -17,6 +17,7 @@ import {
   LoadingSpinner,
   ProgressBar,
   CompletedTask,
+  SlideoutComponent,
 } from "@/components";
 
 import { useAppContext } from "../context/AppContext";
@@ -59,7 +60,7 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
 
-  const [noteMode, setNoteMode] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task>(null);
@@ -172,9 +173,10 @@ export default function Home() {
   };
 
   const toggleNoteMode = () => {
-    const nextMode = !noteMode;
-
-    setNoteMode(nextMode);
+    const nextMode = !isEditingNote;
+    if( nextMode === false ) {
+      setIsEditingNote(false);
+    }
     // updateState({ isNoteMode: !noteMode });
 
     window.electronAPI
@@ -183,6 +185,7 @@ export default function Home() {
         height: 900, // Keep height consistent
       })
       .then(() => {
+        setIsEditingNote(nextMode);
         console.log("Window size updated");
       })
       .catch((error: unknown) => {
@@ -190,51 +193,19 @@ export default function Home() {
       });
   };
 
-  if (noteMode) {
-    return (
-      <main id="app" className={`h-screen select-none flex flex-col`}>
-        <div className="shrink-0 h-6">
-          <TitlebarComponent />
-        </div>
-
-        <div className="flex flex-1 overflow-hidden">
-          <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8">
-            <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-            <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
-            <PencilIcon
-              className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"
-              onClick={toggleNoteMode}
-            />
-            <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
-          </div>
-        <NotesComponent />
-
-        </div>
-
-
-        <SettingsModal
-          isOpen={settingsOpen}
-          onClick={() => {
-            updateState({ isSettingsModalOpen: false });
-          }}
-        />
-      </main>
-    );
-  }
-
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <main id="app" className={`h-screen select-none flex flex-col`}>
           {!state.isFocusMode && (
-            <div className="shrink-0 h-6">
+            <div className="shrink-0 h-6 z-100">
               {" "}
               <TitlebarComponent />
             </div>
           )}
 
           <div className="flex flex-1 overflow-hidden">
-            <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8">
+            <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8 z-100">
               <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <PencilIcon
@@ -243,6 +214,9 @@ export default function Home() {
               />
               <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " />
             </div>
+            <SlideoutComponent isOpen={isEditingNote} onClose={toggleNoteMode}>
+              <NotesComponent />
+            </SlideoutComponent>
 
             <div className="flex-1 flex flex-col h-screen gap-4 p-4">
               <ActivityBar />
@@ -303,6 +277,7 @@ export default function Home() {
                 <p className="text-sm">{version}</p>
               </div>
             </div>
+
           </div>
 
           <SettingsModal
