@@ -1,10 +1,14 @@
+
 export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1f2937',
-        secondary: '#05df72',
-        accent: '#2b7fff',
+        brand: {
+          'primary': '#1f2937',
+          'secondary': '#2b7fff',
+          'tertiary': '#05df72',
+          'quaternary': '#ff4d4d',
+        },
         'text-primary': '#99a1af',
       },
       keyframes: {
