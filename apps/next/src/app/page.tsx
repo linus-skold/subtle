@@ -205,8 +205,8 @@ export default function Home() {
             </div>
           )}
 
-          <div className="flex flex-1 overflow-hidden">
-            <div className="w-[64px] h-screen bg-gray-800 flex flex-col items-center gap-8 z-100">
+          <div className="flex h-screen">
+            <div className="w-[64px] h-screen bg-gray-800 flex flex-col flex-shrink-0 items-center gap-8 z-100">
               <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <PencilIcon
@@ -215,6 +215,7 @@ export default function Home() {
               />
               <Cog6ToothIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer " onClick={() => setSettingsOpen(true)} />
             </div>
+
             <SlideoutComponent isOpen={isEditingNote} onClose={toggleNoteMode}>
               <NotesComponent />
             </SlideoutComponent>
@@ -223,9 +224,7 @@ export default function Home() {
               <SettingsModal /> 
             </SlideoutComponent>
 
-
-
-            <div className="flex-1 flex flex-col h-screen gap-4 p-4">
+            <div className="flex flex-col flex-1 h-screen gap-4 p-4 overflow-auto">
               <ActivityBar />
               {activeTask && (
                 <ActiveTask task={activeTask} onComplete={completeTask} />
