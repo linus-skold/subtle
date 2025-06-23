@@ -22,7 +22,7 @@ const TaskComponent = (props: {
   order: number;
   task: Task;
   taskId: number;
-  onChange?: (task: Task) => void;
+  disableHover?: boolean;
   onDelete?: () => void;
   onComplete?: (taskId: number) => void;
   onStart?: (taskId: number) => void;
@@ -44,6 +44,8 @@ const TaskComponent = (props: {
   const progress = useRef(0);
 
   const taskContext = useTasks();
+  const { taskService } = taskContext;
+
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -52,7 +54,42 @@ const TaskComponent = (props: {
   const completeTime = 200;
 
   const checkIsHovered = (value: boolean) => {
+    if (props.disableHover) {
+      setIsHovered(false);
+      return;
+    }
     setIsHovered(value);
+  };
+
+  const updateTask = (updatedTask: Task) => {
+    taskContext.taskService
+      .updateTask(updatedTask)
+      .then((updated: Task) => {
+        setTask((prev) => {
+          if (prev) {
+            return { ...prev, ...updated };
+          }
+          return prev;
+        });
+      }
+      )
+      .catch((err: unknown) => {
+        console.error(err);
+      }
+    );
+  };
+
+  const addSubtask = (subtask: Subtask) => {
+    taskContext.taskService
+      .addSubtask({ ...subtask, parentId: task.id })
+      .then((newSubtask: Subtask) => {
+        setSubtasks((prev) =>
+          prev ? [...prev, newSubtask] : [newSubtask],
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
   };
 
   const updateSubtask = (subtask: Subtask) => {
@@ -79,37 +116,6 @@ const TaskComponent = (props: {
       });
   };
 
-  const addSubtask = (subtask: Subtask) => {
-            taskContext.taskService
-              .createSubtask({ ...subtask, parentId: task.id })
-              .then((newSubtask: Subtask) => {
-                setSubtasks((prev) =>
-                  prev ? [...prev, newSubtask] : [newSubtask],
-                );
-              })
-              .catch((err: unknown) => {
-                console.error(err);
-              });
-  };
-
-  const updateTask = (updatedTask: Task) => {
-    taskContext.taskService
-      .updateTask(updatedTask)
-      .then((updated: Task) => {
-        setTask((prev) => {
-          if (prev) {
-            return { ...prev, ...updated };
-          }
-          return prev;
-        });
-        props.onChange?.(updated);
-      }
-      )
-      .catch((err: unknown) => {
-        console.error(err);
-      }
-    );
-  };
 
   const openEditTask = () => {
     setEditTaskOpen(true);
@@ -155,14 +161,16 @@ const TaskComponent = (props: {
       >
         <div className="flex items-center justify-between w-full font-bold transition-all duration-200 whitespace-nowrap overflow-hidden">
           {/* Left section */}
-          <div className="flex items-center space-x-2 min-w-0">
-            <h1 className="text-gray-400 text-sm">{order}</h1>
+          <div className="flex items-center space-x-2 min-w-0 flex-grow">
+            <h1 className="text-gray-400 text-sm whitespace-nowrap">{order}</h1>
 
             <div
               className={`overflow-hidden transition-all duration-100 ease-in-out z-50 ${
                 isHovered ? "w-5" : "w-0"
-              }`}
+              } flex-shrink-0`}
             >
+
+
               <CheckCircleIcon
                 className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
                 onClick={(e) => {
@@ -230,8 +238,8 @@ const TaskComponent = (props: {
           subtasks={subtasksList}
           parentId={task.id}
           onAddSubtask={(subtask: Subtask) => {
-            taskContext.taskService
-              .createSubtask({ ...subtask, parentId: task.id })
+            taskService
+              .addSubtask({ ...subtask, parentId: task.id })
               .then((newSubtask: Subtask) => {
                 setSubtasks((prev) =>
                   prev ? [...prev, newSubtask] : [newSubtask],

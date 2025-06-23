@@ -8,31 +8,51 @@ import {
 import { useEffect, useRef, useState } from "react";
 import EditTask from "./EditTask";
 import { type Task } from "@db/schema/task.schema";
+import { type Subtask } from "@db/schema/subtask.schema";
 
-const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void }) => {
+import { useTasks } from "@/context/TaskContext";
 
-  if(!props.task) {
-    return <></>;
-  }
+const ActiveTask = (props: {
+  task: Task;
+  onComplete: (taskId: number) => void;
+  onChange?: (task: Task) => void;
+}) => {
 
-  const [subtasks, setSubtasks] = useState([]);
+
+
+  const taskContext = useTasks();
+
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [task, setTask] = useState<Task>();
 
   const [isHovered, setIsHovered] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
   const [overtime, setOvertime] = useState(false);
   const [taskTimer, setTaskTimer] = useState(0);
-  
+
   const intervalRef = useRef<number | null>(null);
   const taskTimerRef = useRef(0);
   const overtimeRef = useRef(false);
 
   useEffect(() => {
-    const startingTimer = props.task.progress > 0 ? props.task.progress : props.task.estimate;
+    setTask(props.task);
+    const startingTimer =
+      props.task.progress > 0 ? props.task.progress : props.task.estimate;
     setTaskTimer(startingTimer);
     setOvertime(props.task.progress > props.task.estimate);
     taskTimerRef.current = startingTimer ?? 0;
 
+    taskContext.taskService
+      .getSubtasks(props.task.id)
+      .then((tasks: Subtask[]) => {
+        if (tasks && tasks.length > 0) {
+          setSubtasks(tasks);
+        }
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
   }, [props.task.id]);
 
   useEffect(() => {
@@ -58,6 +78,57 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
     return () => clearInterval(intervalRef.current ?? 0);
   }, [isPaused]);
 
+  const addSubtask = (subtask: Subtask) => {
+    taskContext.taskService
+      .addSubtask({ ...subtask, parentId: task.id })
+      .then((newSubtask: Subtask) => {
+        setSubtasks((prev) => (prev ? [...prev, newSubtask] : [newSubtask]));
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
+  const updateSubtask = (subtask: Subtask) => {
+    taskContext.taskService
+      .updateSubtask(subtask)
+      .then((updated: Subtask) => {
+        setSubtasks((prev) =>
+          prev ? prev.map((s) => (s.id === updated.id ? updated : s)) : [],
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
+  const deleteSubtask = (id: number) => {
+    taskContext.taskService
+      .deleteSubtask(id)
+      .then(() => {
+        setSubtasks((prev) => (prev ? prev.filter((s) => s.id !== id) : []));
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
+  const updateTask = (updatedTask: Task) => {
+    taskContext.taskService
+      .updateTask(updatedTask)
+      .then((updated: Task) => {
+        setTask((prev) => {
+          if (prev) {
+            return { ...prev, ...updated };
+          }
+          return prev;
+        });
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  };
+
   const [isPausing, setIsPausing] = useState(false);
 
   useEffect(() => {
@@ -70,6 +141,10 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
 
     return () => clearTimeout(timeout);
   }, [isPausing]);
+
+  if (!task) {
+    return <></>;
+  }
 
   return (
     <div
@@ -105,7 +180,7 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
 
             <CheckCircleIcon
               className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
-              onClick={() => props.onComplete(props.task.id)}
+              onClick={() => props.onComplete(task.id)}
             />
           </div>
           {/* Default Content (Title & Time) */}
@@ -115,7 +190,17 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
             }`}
           >
             <div className="flex items-center justify-between w-full h-full min-h-[60px]">
-              <h1 className="text-white">{props.task?.title}</h1>
+              <h1
+                className="text-white break-words leading-tight"
+                style={{
+                  fontSize: `clamp(0.75rem, ${Math.min(
+                    1.5,
+                    20 / (task?.title?.length || 1),
+                  )}rem, 1.25rem)`,
+                }}
+              >
+                {task?.title}
+              </h1>
               <h1 className={overtime ? "text-yellow-600" : "text-white"}>
                 {formatProgress(taskTimer)}
               </h1>
@@ -123,24 +208,18 @@ const ActiveTask = (props: { task: Task, onComplete: (taskId: number) => void })
           </div>
         </div>
       </div>
-      {/* {currentTask.current && (
-        <EditTask
-          open={editTaskOpen}
-          task={currentTask.current}
-          onClick={(v) => setEditTaskOpen(v)}
-          onChange={({ taskData, subtaskData }) => {
-            if (subtaskData) {
-              setSubtasks(subtaskData);
-            }
-            // if (taskData) {
-            //   updateTask(activeTask, {
-            //     ...taskData,
-            //   });
-            // }
-          }}
-          subtasks={subtasks}
-        />
-      )} */}
+
+      <EditTask
+        open={editTaskOpen}
+        isOpen={setEditTaskOpen}
+        task={task}
+        subtasks={subtasks}
+        removeSubtask={(id: number) => deleteSubtask(id)}
+        addSubtask={(subtask: Subtask) => addSubtask(subtask)}
+        updateSubtask={(subtask: Subtask) => updateSubtask(subtask)}
+        updateTask={(updatedTask: Task) => updateTask(updatedTask)}
+      />
+
     </div>
   );
 };

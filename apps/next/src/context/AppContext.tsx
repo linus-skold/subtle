@@ -1,79 +1,54 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { createContext, useContext, useState } from "react";
 
 import { z } from "zod";
 
-export const AppSettingsSchema = z.object({
-  alwaysOnTop: z.boolean().default(false),
-  autoStart: z.boolean().default(false),
-  autoStartOnLogin: z.boolean().default(false),
+export const appService = {
+  getSettings: () => window.electronAPI.invoke("settings:getAll"),
+  updateSettings: (setting: { id: number, setting: string; state: string }) =>
+    window.electronAPI.invoke("settings:update", setting),
+}
+
+export const settingSchema = z.object({
+  id: z.number(),
+  setting: z.string(),
+  state: z.string(),
 });
 
-const defaultAppSettings = {
-  alwaysOnTop: false,
-  autoStart: false,
-  autoStartOnLogin: false,
-};
+export type Setting = z.infer<typeof settingSchema>;
 
-export const AppStateSchema = z.object({
-  isFocusMode: z.boolean().default(false),
-  isCompactMode: z.boolean().default(false),
-  isSettingsModalOpen: z.boolean().default(false),
-  isTaskContextOpen: z.boolean().default(false),
-  appSettings: AppSettingsSchema,
-});
 
-export type AppState = z.infer<typeof AppStateSchema>;
-export const PartialAppStateSchema = AppStateSchema.partial();
-export type PartialAppState = z.infer<typeof PartialAppStateSchema>;
 
-const AppStateDefault: AppState = {
-  isFocusMode: false,
-  isCompactMode: false,
-  isSettingsModalOpen: false,
-  isTaskContextOpen: false,
-  appSettings: defaultAppSettings,
-};
+export type AppService = typeof appService;
 
 export interface AppContextType {
-  state: AppState;
-  updateState: (newState: PartialAppState) => void;
-  updateAppSettings: (newSettings: PartialAppState["appSettings"]) => void;
+  appService?: AppService;
+  settings: Setting[];
+  setSettings: React.Dispatch<React.SetStateAction<Setting[] | undefined>>;
+  getSetting: (key: string) => Setting | undefined;
 }
 
 const AppContext = createContext<AppContextType>({
-  state: AppStateDefault,
-  updateState: () => {
-    throw new Error("updateState function not implemented");
-  },
-  updateAppSettings: () => {
-    throw new Error("updateAppSettings function not implemented");
-  },
+  appService,
+  settings: [],
+  setSettings: () => {},
+  getSetting: () => undefined
 });
 
+
+
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [state, setState] = useState<AppState>(AppStateDefault);
+  const [settings, setSettings] = useState<Setting[]>([]);
 
-  const updateState = (newState: PartialAppState) => {
-    const parsedState = PartialAppStateSchema.parse(newState);
-    setState((prevState) => ({
-      ...prevState,
-      ...parsedState,
-    }));
-  };
+  
+const getSetting = (key: string): Setting | undefined => {
+  return settings.find((setting) => setting.setting === key);
+}
 
-  const updateAppSettings = (newSettings: PartialAppState["appSettings"]) => {
-    const parsedSettings = AppSettingsSchema.parse(newSettings);
-    setState((prevState) => ({
-      ...prevState,
-      appSettings: {
-        ...prevState.appSettings,
-        ...parsedSettings,
-      },
-    }));
-  };
+
 
   return (
-    <AppContext.Provider value={{ state, updateState, updateAppSettings }}>
+    <AppContext.Provider value={{ appService, settings, setSettings, getSetting }}>
       {children}
     </AppContext.Provider>
   );

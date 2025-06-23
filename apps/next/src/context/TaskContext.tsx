@@ -10,15 +10,43 @@ const taskService = {
   getTasks: () => window.electronAPI.invoke("get-tasks"),
   createTask: (task: Task) => window.electronAPI.invoke("create-task", task),
   updateTask: (task: Task) => window.electronAPI.invoke("update-task", task),
-  deleteTask: (taskId: number) => window.electronAPI.invoke("delete-task", taskId),
+  deleteTask: (taskId: number) =>
+    window.electronAPI.invoke("delete-task", taskId),
   getSubtasks: (taskId: number) =>
     window.electronAPI.invoke("get-subtasks", taskId),
-  createSubtask: (subtask: Subtask) =>
-    window.electronAPI.invoke("create-subtask", subtask),
-  deleteSubtask: (subtaskId: number) =>
-    window.electronAPI.invoke("delete-subtask", subtaskId),
-  updateSubtask: (subtask: Subtask) =>
-    window.electronAPI.invoke("update-subtask", subtask),
+
+  updateSubtask: (subtask: Subtask) => {
+    return window.electronAPI
+      .invoke("update-subtask", subtask)
+      .then((updated: Subtask) => {
+        return updated;
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  },
+
+  deleteSubtask: (id: number) => {
+    return window.electronAPI
+      .invoke("delete-subtask", id)
+      .then(() => {
+        return id;
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  },
+
+  addSubtask: (subtask: Subtask) => {
+    return window.electronAPI
+      .invoke("create-subtask", subtask)
+      .then((newSubtask: Subtask) => {
+        return newSubtask;
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+      });
+  },
 };
 
 type TaskService = typeof taskService;
