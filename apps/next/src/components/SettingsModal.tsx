@@ -1,57 +1,50 @@
-import { useAppContext } from "../context/AppContext";
-import {
-  Field,
-  Label,
-} from "@headlessui/react";
+import React from "react";
 
-import { ToggleComponent } from '@/components'
+import { useAppContext } from "../context/AppContext";
+
+import { ToggleComponent } from "@/components";
 
 const SettingsModal = () => {
-  const { state, updateAppSettings } = useAppContext();
+  const { appService, setSettings, settings, getSetting } = useAppContext();
 
-  const appSettings = state.appSettings;
-
-  const setAlwaysOnTop = (value: boolean) => {
-    updateAppSettings({ ...appSettings, alwaysOnTop: value });
-  };
-
-  const setAutoStart = (value: boolean) => {
-    updateAppSettings({ ...appSettings, autoStart: value });
+  const setSetting = (id: number, key: string, value: string) => {
+    const setting = getSetting(key);
+    if (setting) {
+      appService
+        .updateSettings({ id, setting: key, state: value })
+        .then(() => {
+          console.log(`Setting ${key} updated to ${value}`);
+          setSettings((prevSettings) =>
+            prevSettings?.map((s) =>
+              s.setting === key ? { ...s, state: value } : s,
+            ),
+          );
+        })
+        .catch((error: unknown) => {
+          console.error(`Failed to update setting ${key}:`, error);
+        });
+    } else {
+      console.warn(`Setting ${key} not found`);
+    }
   };
 
   return (
-    <>
-   
-        <div className="flex flex-col gap-2 border-t border-gray-700 pt-2 mt-2">
-          <ToggleComponent
-            text="Always on top"
-            checked={appSettings?.alwaysOnTop}
-            onChange={setAlwaysOnTop}
-          />
-          <ToggleComponent
-            text="Auto start"
-            checked={appSettings?.autoStart}
-            onChange={setAutoStart}
-          />
-          <ToggleComponent
-            text="Always on top"
-            checked={appSettings?.alwaysOnTop}
-            onChange={setAlwaysOnTop}
-          />
-          <hr />
-          <h3>Idle Settings</h3>
-          <Field className="flex items-center justify-between">
-            <Label>Idle detection time</Label>
-            <Label>Value</Label>
-          </Field>
-          <ToggleComponent
-            text="Resume on activity"
-            checked={appSettings?.alwaysOnTop}
-            onChange={setAlwaysOnTop}
-          />
-        </div>
-    </>
-
+    <div className="flex flex-col gap-2 border-gray-700 pt-2 mt-2">
+      {settings?.map((setting) => (
+        <ToggleComponent
+          text={setting.setting}
+          checked={setting.state === "true"}
+          key={setting.setting}
+          onChange={() =>
+            setSetting(
+              setting.id,
+              setting.setting,
+              setting.state === "true" ? "false" : "true",
+            )
+          }
+        />
+      ))}
+    </div>
   );
 };
 export default SettingsModal;

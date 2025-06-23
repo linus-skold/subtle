@@ -4,7 +4,7 @@
 "use client";
 
 import { version } from "../../../../package.json";
-import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 
 import {
   ActiveTask,
@@ -20,7 +20,6 @@ import {
   SlideoutComponent,
 } from "@/components";
 
-import { useAppContext } from "../context/AppContext";
 import { useTasks } from "../context/TaskContext";
 
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
@@ -29,7 +28,6 @@ import {
   PencilIcon,
   HomeIcon,
   Cog6ToothIcon,
-  InboxIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 
@@ -41,6 +39,7 @@ import {
 
 import type { Task } from "@db/schema/task.schema";
 import NotesComponent from "@/components/NotesComponent";
+import { useAppContext, type Setting } from "@/context";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -56,7 +55,11 @@ function useWindowSize() {
 }
 
 export default function Home() {
-  const { state, updateState } = useAppContext();
+  const { appService, setSettings } = useAppContext();
+
+  const [ isSettingsModalOpen , setIsSettingsModalOpen ] = useState(false);
+  const [ isFocusMode , setIsFocusMode ] = useState(false);
+
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
 
@@ -90,6 +93,24 @@ export default function Home() {
       } catch (error) {
         console.error("Error during database initialization:", error);
       }
+
+      try {
+              appService
+                .getSettings()
+                .then((fetchedSettings) => {
+                  console.log("Fetched settings:", fetchedSettings);
+                  setSettings(fetchedSettings as Setting[]);
+                })
+                .catch((error: unknown) => {
+                  console.error("Failed to fetch settings:", error);
+                });
+              setTimeout(() => {
+                // Simulate a delay for startup
+                setIsStartup(false);
+              }, 1000);
+            } catch (error) {
+              console.error("Error during database initialization:", error);
+            }
     };
 
     if (isStartup) {
@@ -106,15 +127,15 @@ export default function Home() {
   const [width] = useWindowSize();
   useEffect(() => {
     if (width < 800) {
-      updateState({ isCompactMode: true });
+      // updateState({ isCompactMode: true });
     } else {
-      updateState({ isCompactMode: false });
+      // updateState({ isCompactMode: false });
     }
   }, [width]);
 
   useEffect(() => {
-    setSettingsOpen(state.isSettingsModalOpen);
-  }, [state.isSettingsModalOpen]);
+    setSettingsOpen(isSettingsModalOpen);
+  }, [isSettingsModalOpen]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -198,7 +219,7 @@ export default function Home() {
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <main id="app" className={`h-screen select-none flex flex-col`}>
-          {!state.isFocusMode && (
+          {!isFocusMode && (
             <div className="shrink-0 h-6 z-100">
               {" "}
               <TitlebarComponent />
@@ -237,6 +258,7 @@ export default function Home() {
                     .filter((task) => !task.completed && !task?.active)
                     .map((task, index) => (
                       <TaskComponent
+                        disableHover={isSettingsModalOpen}
                         key={task.id}
                         order={index + 1}
                         task={task}
