@@ -61,17 +61,15 @@ const SubtasksBlock = ({
       {subtasksOpen && (
         <div className="z-20 relative flex flex-col mt-2">
           <InputComponent<string>
+            className="focus:outline-hidden focus:border-green-400 border-b-2 relative"
             onKeyDown={(_, value) => {
-              // add new subtask to database and tell parent to update
               onAddSubtask?.({
                 title: value,
                 completed: false,
               } as Subtask);
             }}
             show={addingSubtasks}
-            onClose={() => {
-              setAddingSubtasks(false);
-            }}
+            onClose={() => setAddingSubtasks(false) }
           />
 
           <div

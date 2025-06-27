@@ -35,6 +35,12 @@ const ActiveTask = (props: {
   const taskTimerRef = useRef(0);
   const overtimeRef = useRef(false);
 
+
+  const closeEditTask = (value: boolean) => {
+    setEditTaskOpen(value);
+    setIsHovered(false);
+  }
+
   useEffect(() => {
     setTask(props.task);
     const startingTimer =
@@ -211,7 +217,7 @@ const ActiveTask = (props: {
 
       <EditTask
         open={editTaskOpen}
-        isOpen={setEditTaskOpen}
+        isOpen={closeEditTask}
         task={task}
         subtasks={subtasks}
         removeSubtask={(id: number) => deleteSubtask(id)}

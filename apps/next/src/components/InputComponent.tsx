@@ -15,6 +15,7 @@ const InputComponent = <T,>({
   onKeyDown,
   show,
   onClose,
+  ...props
 }: InputComponentProps<T>) => {
   const [value, setValue] = useState<string>("");
 
@@ -34,14 +35,14 @@ const InputComponent = <T,>({
   }
 
   return (
-    <div className="p-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
+    <div className="pb-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500  relative ">
       <input
         type="text"
         onKeyDown={handleKeyDown}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder ?? ""}
         value={value}
-        className="focus:outline-none rounded-md p-2 w-full bg-gray-800 placeholder:text-sm"
+        className="focus:outline-none p-2 w-full bg-gray-800 placeholder:text-sm"
       />
       <button
         type="button"
