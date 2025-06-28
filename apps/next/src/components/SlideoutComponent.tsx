@@ -20,6 +20,9 @@ const Slideout = ({ isOpen, onClose, children }) => {
     };
   }, [isOpen]);
 
+  if(!isOpen) return <></>;
+
+
   return (
     <>
       {/* Backdrop */}

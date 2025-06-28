@@ -57,7 +57,6 @@ function useWindowSize() {
 export default function Home() {
   const { appService, setSettings } = useAppContext();
 
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -133,10 +132,6 @@ export default function Home() {
       // updateState({ isCompactMode: false });
     }
   }, [width]);
-
-  useEffect(() => {
-    setSettingsOpen(isSettingsModalOpen);
-  }, [isSettingsModalOpen]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -279,7 +274,7 @@ export default function Home() {
               isOpen={settingsOpen}
               onClose={() => setSettingsOpen(false)}
             >
-              <SettingsModal />
+              <SettingsModal isOpen={settingsOpen}/>
             </SlideoutComponent>
 
             <div className="flex flex-col flex-1 h-screen gap-4 p-4 overflow-auto">
@@ -295,7 +290,7 @@ export default function Home() {
                     .filter((task) => !task.completed && !task?.active)
                     .map((task, index) => (
                       <TaskComponent
-                        disableHover={isSettingsModalOpen}
+                        disableHover={settingsOpen}
                         key={task.id}
                         order={index + 1}
                         task={task}
