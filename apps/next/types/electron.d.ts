@@ -4,7 +4,7 @@ export {};
 declare global {
   interface Window {
     electronAPI: {
-      invoke: (channel: string, data?: unknown) => Promise<unknown>;
+      invoke: <T = unknown>(channel: string, data?: unknown) => Promise<T>;
     };
   }
 }

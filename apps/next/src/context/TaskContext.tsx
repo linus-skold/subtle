@@ -7,13 +7,13 @@ import type { Task } from "@db/schema/task.schema";
 import { Subtask } from "@db/schema/subtask.schema";
 
 const taskService = {
-  getTasks: () => window.electronAPI.invoke("get-tasks"),
-  createTask: (task: Task) => window.electronAPI.invoke("create-task", task),
-  updateTask: (task: Task) => window.electronAPI.invoke("update-task", task),
+  getTasks: () => window.electronAPI.invoke<Task[]>("get-tasks"),
+  createTask: (task: Task) => window.electronAPI.invoke<Task>("create-task", task),
+  updateTask: (task: Task) => window.electronAPI.invoke<Task>("update-task", task),
   deleteTask: (taskId: number) =>
     window.electronAPI.invoke("delete-task", taskId),
   getSubtasks: (taskId: number) =>
-    window.electronAPI.invoke("get-subtasks", taskId),
+    window.electronAPI.invoke<Subtask[]>("get-subtasks", taskId),
 
   updateSubtask: (subtask: Subtask) => {
     return window.electronAPI

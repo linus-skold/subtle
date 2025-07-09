@@ -32,9 +32,6 @@ const AddTaskComponent = ({
       return;
     }
 
-    console.log("Adding task:", taskName, "with estimate:", parsedEstimate * 60);
-
-
     onAdd({
       title: taskName,
       estimate: parsedEstimate * 60,
@@ -98,29 +95,32 @@ const AddTaskComponent = ({
               type="text"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
-              placeholder="Task"
+              placeholder="Enter task and press enter..."
               className={`border ${error ? "border-red-500" : "border-green-400"} outline-none rounded-md p-2 w-full placeholder:text-sm`}
             />
-            <input
-              type="text"
-              value={taskEstimateString}
-              onChange={(e) => {
-                setTaskEstimateString(e.target.value);
-              }}
-              placeholder="hh:mm"
-              className="border border-green-400 rounded-md p-2 w-16 placeholder:text-sm outline-none"
-            />
+            {
+                // <input
+            //   type="text"
+            //   value={taskEstimateString}
+            //   onChange={(e) => {
+            //     setTaskEstimateString(e.target.value);
+            //   }}
+            //   placeholder="hh:mm"
+            //   className="border border-green-400 rounded-md p-2 w-16 placeholder:text-sm outline-non"
+            // />
+            }
           </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="cursor-pointer text-white bg-gradient-to-r from-green-400 to-blue-500 
-          rounded-full px-8 py-2 self-start text-gray-700 font-bold"
-            >
-              Add
-            </button>
-          </div>
-        </div>
+          {          // <div className="flex justify-end">
+          //   <button
+          //     type="submit"
+          //     className="cursor-pointer text-white bg-gradient-to-r from-green-400 to-blue-500 
+          // rounded-full px-8 py-2 self-start text-gray-700 font-bold"
+          //   >
+          //     Add
+          //   </button>
+          //    </div>
+            }
+              </div>
       </form>
       {children}
     </div>

@@ -17,37 +17,36 @@ const ActiveTask = (props: {
   onComplete: (taskId: number) => void;
   onChange?: (task: Task) => void;
 }) => {
-
-
-
   const taskContext = useTasks();
 
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [task, setTask] = useState<Task>();
 
+  
   const [isHovered, setIsHovered] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [editTaskOpen, setEditTaskOpen] = useState(false);
-  const [overtime, setOvertime] = useState(false);
   const [taskTimer, setTaskTimer] = useState(0);
 
   const intervalRef = useRef<number | null>(null);
   const taskTimerRef = useRef(0);
   const overtimeRef = useRef(false);
 
-
   const closeEditTask = (value: boolean) => {
     setEditTaskOpen(value);
     setIsHovered(false);
-  }
+  };
 
   useEffect(() => {
+    props.onChange?.({ ...task, progress: taskTimer });
+
+    console.log(props.task)
+
+
     setTask(props.task);
-    const startingTimer =
-      props.task.progress > 0 ? props.task.progress : props.task.estimate;
-    setTaskTimer(startingTimer);
-    setOvertime(props.task.progress > props.task.estimate);
-    taskTimerRef.current = startingTimer ?? 0;
+    taskTimerRef.current = props.task.progress;
+    setTaskTimer(taskTimerRef.current);
+    overtimeRef.current = (props.task.progress > props.task.estimate);
 
     taskContext.taskService
       .getSubtasks(props.task.id)
@@ -64,20 +63,10 @@ const ActiveTask = (props: {
   useEffect(() => {
     if (!isPaused) {
       intervalRef.current = window.setInterval(() => {
-        setTaskTimer((prev) => {
-          let newTime = 0;
+        taskTimerRef.current += 1;
+        overtimeRef.current = taskTimerRef.current > props.task.estimate;
+        setTaskTimer(taskTimerRef.current);
 
-          if (prev === 0 && !overtimeRef.current) {
-            setOvertime(true);
-            overtimeRef.current = true;
-            newTime = 0;
-          } else {
-            newTime = prev + (overtimeRef.current ? 1 : -1);
-          }
-
-          taskTimerRef.current = newTime;
-          return newTime;
-        });
       }, 1000);
     }
 
@@ -207,9 +196,22 @@ const ActiveTask = (props: {
               >
                 {task?.title}
               </h1>
-              <h1 className={overtime ? "text-yellow-600" : "text-white"}>
+
+              { overtimeRef.current && (
+              <h1 className="text-yellow-600">
+                {formatProgress(taskTimer - task.estimate)}
+              </h1>  
+              )}
+              { !overtimeRef.current && (
+              <h1 className="text-white">
+                {formatProgress(task.estimate - taskTimer)}
+              </h1>  
+              )}
+              
+
+              {/* <h1 className={overtimeRef.current ? "text-yellow-600" : "text-white"}>
                 {formatProgress(taskTimer)}
-              </h1>
+              </h1> */}
             </div>
           </div>
         </div>
@@ -225,7 +227,6 @@ const ActiveTask = (props: {
         updateSubtask={(subtask: Subtask) => updateSubtask(subtask)}
         updateTask={(updatedTask: Task) => updateTask(updatedTask)}
       />
-
     </div>
   );
 };

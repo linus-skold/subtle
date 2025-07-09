@@ -67,13 +67,13 @@ export default function Home() {
   const [hasCleared, setHasCleared] = useState(false);
   const [clearedTasks, setClearedTasks] = useState<Task[]>([]);
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [activeTask, setActiveTask] = useState<Task>(null);
+  const [tasks, setTasks] = useState<Task[]>();
+  const [activeTask, setActiveTask] = useState<Task>();
 
-  const completedTasks = tasks.filter((task) => task.completed);
-  const completedTasksCount = completedTasks.length;
-  const progress = (completedTasksCount / tasks.length) * 100;
-  const progressText = `${completedTasksCount}/${tasks.length} DONE`;
+  const completedTasks = tasks?.filter((task) => task.completed);
+  const completedTasksCount = completedTasks?.length || 0;
+  const progress = (completedTasksCount / (tasks?.length || 1)) * 100;
+  const progressText = `${completedTasksCount}/${tasks?.length || 0} DONE`;
 
   const taskContext = useTasks();
 
@@ -207,9 +207,9 @@ export default function Home() {
     taskContext.taskService
       .updateTask({ ...updatedTask })
       .then((task) => {
-        setTasks((prevTasks) =>
-          prevTasks.map((t) => (t.id === task.id ? task : t)),
-        );
+        setTasks((prevTasks: Task[]) =>
+          prevTasks.map((t: Task) => (t.id === task.id ? task : t))
+      );
       })
       .catch((error: unknown) => {
         console.error("Failed to update task:", error);
@@ -227,7 +227,7 @@ export default function Home() {
   const toggleNoteMode = () => {
     setSettingsOpen(false);
     const nextMode = !isEditingNote;
-    if (nextMode === false) {
+    if (!nextMode) {
       setIsEditingNote(false);
     }
     // updateState({ isNoteMode: !noteMode });
@@ -285,7 +285,7 @@ export default function Home() {
             <div className="flex flex-col flex-1 h-screen gap-4 p-4 overflow-auto">
               <ActivityBar />
               {activeTask && (
-                <ActiveTask task={activeTask} onComplete={completeTask} />
+                <ActiveTask task={activeTask} onComplete={completeTask} onChange={updateTask} />
               )}
 
               <ProgressBar progress={progress} text={progressText} />
