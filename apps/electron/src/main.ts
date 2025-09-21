@@ -201,8 +201,6 @@ const createWindow = async () => {
     mainWindow.loadFile(indexPath).catch((err: unknown) => {
       console.error("Failed to load index.html:", err);
     });
-    // Temporarily enable dev tools to debug the loading issue
-    mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
     // Load the index.html file from the development environment
     mainWindow
