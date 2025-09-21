@@ -15,7 +15,8 @@
     "dist": "npm run build:all && electron-builder",
     "dist:win": "npm run build:all && electron-builder --win",
     "publish": "npm run build:all && electron-builder --publish=always",
-    "start": "next start apps/next"
+    "start": "next start apps/next",
+    "tag": "tsx script/tag-version.ts"
   },
   "build": {
     "appId": "com.subtle.app",
