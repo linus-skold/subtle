@@ -1,13 +1,13 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { fileURLToPath } from "url";
 import path from "path";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 
 import { taskHandles, noteHandles } from "./handles";
 import subtaskHandles from "./handles/subtask.handles";
 import settingsHandles from "./handles/settings.handles";
 
-
-
+import { getClient } from '@db/database.client';
 import { getSettings, createSetting } from '@db/settings.query';
 import { settingsInsertSchema } from '@db/schema/settings.schema';
 
@@ -30,19 +30,41 @@ const defaultSettings = [
 ];
 
 const setupDefaultSettings = async () => {
-  const existingSettings = await getSettings();
-  const existingSettingNames = new Set(existingSettings.map(s => s.setting));
+  try {
+    const client = getClient();
+    
+    // Check if we should skip migrations (production mode or packaged)
+    const skipMigrations = app.isPackaged || process.env.NODE_ENV === 'production';
+    
+    // Only run migrations in development
+    if (!skipMigrations) {
+      // Run database migrations in development
+      console.log("Running database migrations...");
+      const migrationsPath = path.resolve(process.cwd(), "drizzle/migrations");
+      console.log("Using migrations path:", migrationsPath);
+      await migrate(client, { migrationsFolder: migrationsPath });
+      console.log("Database migrations completed");
+    } else {
+      console.log("Skipping migrations in production - using pre-built database");
+    }
 
-  for (const defaultSetting of defaultSettings) {
-    if (!existingSettingNames.has(defaultSetting.setting)) {
-      try {
-        const parsedSetting = settingsInsertSchema.parse(defaultSetting);
-        await createSetting(parsedSetting);
-        console.log(`Created setting: ${defaultSetting.setting}`);
-      } catch (error) {
-        console.error(`Error creating setting ${defaultSetting.setting}:`, error);
+    // Now set up default settings
+    const existingSettings = await getSettings();
+    const existingSettingNames = new Set(existingSettings.map(s => s.setting));
+
+    for (const defaultSetting of defaultSettings) {
+      if (!existingSettingNames.has(defaultSetting.setting)) {
+        try {
+          const parsedSetting = settingsInsertSchema.parse(defaultSetting);
+          await createSetting(parsedSetting);
+          console.log(`Created setting: ${defaultSetting.setting}`);
+        } catch (error) {
+          console.error(`Error creating setting ${defaultSetting.setting}:`, error);
+        }
       }
     }
+  } catch (error) {
+    console.error("Error during database setup:", error);
   }
 };
 
@@ -67,7 +89,15 @@ async function waitForServer(url: string, retries = 20, delay = 500) {
 
 const createWindow = async () => {
   console.log("Creating main window...");
-  await waitForServer("http://localhost:3000");
+  
+  // Check if we should use local files instead of dev server
+  // You can set NODE_ENV=production to test local file loading in development
+  const useLocalFiles = app.isPackaged || process.env.NODE_ENV === 'production';
+  
+  // Only wait for server if we're in development mode and using dev server
+  if (!useLocalFiles) {
+    await waitForServer("http://localhost:3000");
+  }
 
   const preloadPath = path.join(__dirname, "preload.js");
   console.log("Using preload path:", preloadPath);
@@ -93,25 +123,54 @@ const createWindow = async () => {
 
   let dragStartPosition: number[] | null = null;
 
-  if (app.isPackaged) {
-    // Load the index.html file from the packaged app
-    mainWindow.loadFile("index.html").catch((err: unknown) => {
+  if (useLocalFiles) {
+    // Load the index.html file from the built Next.js app
+    const indexPath = app.isPackaged 
+      ? path.join(__dirname, "../app/index.html")
+      : path.join(process.cwd(), "apps/next/out/index.html");
+    console.log("Loading local file:", indexPath);
+    
+    // Set up protocol handler for loading Next.js assets
+    mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+      event.preventDefault();
+    });
+    
+    // Intercept requests to serve static files correctly
+    mainWindow.webContents.session.protocol.interceptFileProtocol('file', (request, callback) => {
+      const url = request.url.substr(7); // Remove 'file://' prefix
+      
+      // Handle Next.js static assets
+      if (url.includes('_next/static')) {
+        const relativePath = url.split('_next/static')[1];
+        const staticPath = app.isPackaged 
+          ? path.join(__dirname, "../app/_next/static", relativePath)
+          : path.join(process.cwd(), "apps/next/out/_next/static", relativePath);
+        callback({ path: staticPath });
+      } else {
+        callback({ path: url });
+      }
+    });
+    
+    mainWindow.loadFile(indexPath).catch((err: unknown) => {
       console.error("Failed to load index.html:", err);
     });
+    // Temporarily enable dev tools to debug the loading issue
+    mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
     // Load the index.html file from the development environment
     mainWindow
       .loadURL("http://localhost:3000")
-      .catch((err: unknown) => console.error(err)); // Adjust the URL as needed for your dev server
+      .catch((err: unknown) => console.error(err));
+    // Only open dev tools in development mode
+    mainWindow.webContents.openDevTools({ mode: "detach" });
   }
-  mainWindow.webContents.openDevTools({ mode: "detach" });
 
   noteHandles.setup();
   taskHandles.setup();
   subtaskHandles.setup();
   settingsHandles.setup();
 
-  ipcMain.on("close-window", () => {
+  ipcMain.handle("close-window", () => {
     mainWindow.close();
     app.quit();
   });
