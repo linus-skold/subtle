@@ -9,8 +9,8 @@ const Slideout = ({ isOpen, onClose, children }) => {
     if (!node) return;
 
     const handleTransitionEnd = () => {
-      if (isOpen && window.electronAPI?.resizeWindow) {
-        window.electronAPI.resizeWindow(1000, 600);
+      if (isOpen && window.electronAPI) {
+        window.electronAPI.invoke("change-window-size", { width: 1000, height: 600 });
       }
     };
 
