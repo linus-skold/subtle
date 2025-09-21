@@ -18,6 +18,7 @@ import {
   ProgressBar,
   CompletedTask,
   SlideoutComponent,
+  UpdateNotification,
 } from "@/components";
 
 import { useTasks } from "../context/TaskContext";
@@ -61,6 +62,9 @@ export default function Home() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isStartup, setIsStartup] = useState(true);
+  const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>("");
+  const [newVersion, setNewVersion] = useState<string>("");
 
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [hasCleared, setHasCleared] = useState(false);
@@ -79,6 +83,12 @@ export default function Home() {
   useEffect(() => {
     const startup = async () => {
       try {
+        // Fetch app version
+        if (window.electronAPI) {
+          const version = await window.electronAPI.invoke("get-app-version");
+          setAppVersion(String(version));
+        }
+
         taskContext.taskService
           .getTasks()
           .then((fetchedTasks: Task[]) => {
@@ -262,9 +272,53 @@ export default function Home() {
       });
   };
 
+  const handleCheckForUpdates = () => {
+    window.electronAPI.invoke("check-for-updates");
+  };
+
+  const handleInstallUpdate = () => {
+    window.electronAPI.invoke("quit-and-install");
+  };
+
+  // Listen for update events (you might want to add these IPC events in the main process)
+  useEffect(() => {
+    if (window.electronAPI) {
+      // Listen for update events from main process
+      window.electronAPI.receive('update-available', (info: any) => {
+        console.log('Update available:', info);
+        setNewVersion(info.version || 'latest');
+        setShowUpdateNotification(true);
+      });
+
+      window.electronAPI.receive('update-downloaded', (info: any) => {
+        console.log('Update downloaded:', info);
+        // You could show a different notification here for "ready to install"
+      });
+
+      window.electronAPI.receive('download-progress', (progress: any) => {
+        console.log('Download progress:', progress);
+        // You could show download progress in the UI
+      });
+    }
+
+    // Simulate update available for demo (remove this in production)
+    const checkUpdates = setTimeout(() => {
+      // setShowUpdateNotification(true);
+    }, 5000);
+
+    return () => clearTimeout(checkUpdates);
+  }, []);
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+        <UpdateNotification 
+          show={showUpdateNotification}
+          onClose={() => setShowUpdateNotification(false)}
+          onInstall={handleInstallUpdate}
+          currentVersion={appVersion}
+          newVersion={newVersion}
+        />
         <main id="app" className={`h-screen select-none flex flex-col`}>
           {!isFocusMode && (
             <div className="shrink-0 h-6 z-100">
@@ -400,7 +454,7 @@ export default function Home() {
 
                   <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
                     <p className="text-sm">
-                      Version: <span className="text-blue-400">{version}</span>
+                      Version: <span className="text-blue-400">{appVersion || version}</span>
                     </p>
                   </div>
                 </>

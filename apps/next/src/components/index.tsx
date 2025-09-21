@@ -18,3 +18,4 @@ export { default as InputComponent } from "./InputComponent";
 export { default as Link } from "./Link";
 export { default as SlideoutComponent } from "./SlideoutComponent";
 export { default as ToggleComponent } from "./ToggleComponent";
+export { default as UpdateNotification } from "./UpdateNotification";
