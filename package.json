@@ -3,26 +3,87 @@
   "private": true,
   "version": "0.2.1-beta.4",
   "type": "module",
-  "main": "src/app.ts",
+  "main": "build/main.js",
   "scripts": {
     "build:electron": "vite build --config ./vite.electron.config.ts && vite build --config ./vite.preload.config.ts && electron-rebuild --only better-sqlite3",
     "dev:electron": "electron ./build/main.js",
     "predev": "npm run build:electron",
     "next:dev": "next dev apps/next --turbopack",
     "dev": "concurrently --names \"CLIENT,SERVER\" --prefix-colors \"blue,green\" -k \"npm run next:dev\" \"npm run dev:electron\"",
-    "build": "next build",
-    "start": "next start"
+    "build": "next build apps/next",
+    "build:all": "npm run build && npm run build:electron",
+    "dist": "npm run build:all && electron-builder",
+    "dist:win": "npm run build:all && electron-builder --win",
+    "start": "next start apps/next"
   },
   "build": {
     "appId": "com.subtle.app",
     "productName": "Subtle",
     "directories": {
-      "output": "build"
+      "output": "dist",
+      "buildResources": "public"
     },
     "files": [
+      "build/**/*",
+      "apps/next/out/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "!**/*.db",
+      "!**/*.db-*"
     ],
-    "win" : {
-      "target": "nsis"
+    "extraResources": [
+      {
+        "from": "apps/next/out",
+        "to": "app",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "drizzle/migrations",
+        "to": "drizzle/migrations",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     }
   },
   "dependencies": {
