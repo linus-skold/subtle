@@ -5,7 +5,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 import { parseEstimate } from "../utils/time.utils";
-import type { Task } from "@db/schema/index.schema";
+import type { Task, TaskInsert } from "@db/schema/index.schema";
 
 const AddTaskComponent = ({
   className,
@@ -33,6 +33,7 @@ const AddTaskComponent = ({
     }
 
     onAdd({
+      id: 0, // Will be set by the database
       title: taskName,
       estimate: parsedEstimate * 60,
       progress: 0,
@@ -42,7 +43,11 @@ const AddTaskComponent = ({
       description: "",
       archived: false,
       task_list_id: 0,
-      priority: "none"
+      priority: "none",
+      active: false,
+      overtime: false,
+      tags: "[]",
+      additionalData: "{}"
     })
 
     // taskService.createTask();

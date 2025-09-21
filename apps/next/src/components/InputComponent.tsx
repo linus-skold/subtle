@@ -8,6 +8,7 @@ interface InputComponentProps<T = unknown> {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>, value: T) => void;
   show: boolean;
   onClose?: () => void;
+  className?: string;
 }
 
 const InputComponent = <T,>({
@@ -15,6 +16,7 @@ const InputComponent = <T,>({
   onKeyDown,
   show,
   onClose,
+  className,
   ...props
 }: InputComponentProps<T>) => {
   const [value, setValue] = useState<string>("");
@@ -35,7 +37,7 @@ const InputComponent = <T,>({
   }
 
   return (
-    <div className="pb-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500  relative ">
+    <div className={`pb-[2px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500  relative ${className || ""}`}>
       <input
         type="text"
         onKeyDown={handleKeyDown}
