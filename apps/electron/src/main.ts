@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import { autoUpdater } from "electron-updater";
 import { fileURLToPath } from "url";
 import path from "path";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
@@ -74,6 +75,52 @@ export const __dirname = path.dirname(__filename);
 
 console.log("Starting Electron app...");
 
+// Configure auto-updater
+autoUpdater.checkForUpdatesAndNotify();
+
+// Global reference to main window
+let mainWindow: BrowserWindow | null = null;
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available.');
+  // Send update info to renderer process
+  if (mainWindow) {
+    mainWindow.webContents.send('update-available', info);
+  }
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available.');
+});
+
+autoUpdater.on('error', (err) => {
+  console.log('Error in auto-updater. ' + err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  console.log(log_message);
+  // Send progress to renderer
+  if (mainWindow) {
+    mainWindow.webContents.send('download-progress', progressObj);
+  }
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded');
+  // Send update downloaded event to renderer
+  if (mainWindow) {
+    mainWindow.webContents.send('update-downloaded', info);
+  }
+});
+
 async function waitForServer(url: string, retries = 20, delay = 500) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -106,7 +153,7 @@ const createWindow = async () => {
   await setupDefaultSettings();
 
 
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 400,
     height: 900,
     frame: false,
@@ -171,35 +218,60 @@ const createWindow = async () => {
   settingsHandles.setup();
 
   ipcMain.handle("close-window", () => {
-    mainWindow.close();
-    app.quit();
+    if (mainWindow) {
+      mainWindow.close();
+      app.quit();
+    }
+  });
+
+  // Auto-updater IPC handlers
+  ipcMain.handle("check-for-updates", () => {
+    autoUpdater.checkForUpdatesAndNotify();
+  });
+
+  ipcMain.handle("quit-and-install", () => {
+    autoUpdater.quitAndInstall();
+  });
+
+  ipcMain.handle("get-app-version", () => {
+    return app.getVersion();
   });
 
   ipcMain.handle(
     "change-window-size",
     (event, size) => {
-      mainWindow.setSize(size.width, size.height);
+      if (mainWindow) {
+        mainWindow.setSize(size.width, size.height);
+      }
     },
   );
 
   ipcMain.handle("get-window-size", () => {
-    const [width, height] = mainWindow.getSize();
-    return { width, height };
+    if (mainWindow) {
+      const [width, height] = mainWindow.getSize();
+      return { width, height };
+    }
+    return { width: 0, height: 0 };
   });
 
   ipcMain.handle("set-always-on-top", (event, alwaysOnTop: boolean) => {
-    mainWindow.setAlwaysOnTop(alwaysOnTop);
-    return alwaysOnTop;
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(alwaysOnTop);
+      return alwaysOnTop;
+    }
+    return false;
   });
 
   ipcMain.handle("enable-drag", (event, enable: boolean) => {
-    if (enable) {
+    if (enable && mainWindow) {
       mainWindow.setMovable(true);
     }
     return enable;
   });
 
   ipcMain.handle("move-window", (event, { deltaX, deltaY }) => {
+    if (!mainWindow) return;
+    
     // Get the window position when drag started
     if (!dragStartPosition) {
       dragStartPosition = mainWindow.getPosition();
@@ -211,8 +283,10 @@ const createWindow = async () => {
   });
 
   ipcMain.handle("start-drag", () => {
-    // Store the current window position as drag start
-    dragStartPosition = mainWindow.getPosition();
+    if (mainWindow) {
+      // Store the current window position as drag start
+      dragStartPosition = mainWindow.getPosition();
+    }
   });
 
   ipcMain.handle("end-drag", () => {
@@ -221,12 +295,17 @@ const createWindow = async () => {
   });
 
   ipcMain.handle("get-window-position", () => {
-    const [x, y] = mainWindow.getPosition();
-    return { x, y };
+    if (mainWindow) {
+      const [x, y] = mainWindow.getPosition();
+      return { x, y };
+    }
+    return { x: 0, y: 0 };
   });
 
   ipcMain.handle("set-window-position", (event, { x, y }) => {
-    mainWindow.setPosition(x, y);
+    if (mainWindow) {
+      mainWindow.setPosition(x, y);
+    }
   });
 
 };
