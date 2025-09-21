@@ -9,6 +9,15 @@ html {
   overflow: hidden;
 }
 
+/* Electron drag region support */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

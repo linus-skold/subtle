@@ -39,7 +39,7 @@ import {
 
 import type { Task } from "@db/schema/task.schema";
 import NotesComponent from "@/components/NotesComponent";
-import { useAppContext, type Setting } from "@/context";
+import { useAppContext } from "@/context";
 
 function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -99,7 +99,7 @@ export default function Home() {
         appService
           .getSettings()
           .then((fetchedSettings) => {
-            setSettings(fetchedSettings as Setting[]);
+            setSettings(fetchedSettings as any);
           })
           .catch((error: unknown) => {
             console.error("Failed to fetch settings:", error);
@@ -133,7 +133,7 @@ export default function Home() {
     }
   }, [width]);
 
-  function handleDragEnd(event: DragEndEvent) {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
       setTasks((tasks) => {
@@ -143,12 +143,12 @@ export default function Home() {
         return arrayMove(tasks, oldIndex, newIndex);
       });
     }
-  }
+  };
 
-  function handleClearTasks() {
+  const handleClearTasks = () => {
     if (!hasCleared) {
       const toClear = tasks.filter((task) => task.completed);
-
+      console.log(toClear);
       setClearedTasks(toClear);
 
       setTasks((prevTasks) => prevTasks.filter((task) => !task.completed));
@@ -165,7 +165,7 @@ export default function Home() {
       setClearedTasks([]);
       setHasCleared(false);
     }
-  }
+  };
 
   if (isStartup) {
     return (
@@ -179,7 +179,7 @@ export default function Home() {
     taskContext.taskService
       .createTask(newTask)
       .then((result) => {
-        setTasks((prevTasks) => [...prevTasks, result]);
+        setTasks((prevTasks) => [...prevTasks, result as Task]);
       })
       .catch((error: unknown) => {
         console.error("Failed to create task:", error);
@@ -202,9 +202,9 @@ export default function Home() {
     taskContext.taskService
       .updateTask({ ...updatedTask })
       .then((task) => {
-        setTasks((prevTasks: Task[]) =>
-          prevTasks.map((t: Task) => (t.id === task.id ? task : t))
-      );
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t.id === (task as Task).id ? (task as Task) : t)),
+        );
       })
       .catch((error: unknown) => {
         console.error("Failed to update task:", error);
@@ -241,6 +241,27 @@ export default function Home() {
       });
   };
 
+  const toggleFocusMode = () => {
+    const nextMode = !isFocusMode;
+    setIsFocusMode(nextMode);
+    
+    // Resize window, set always on top, and enable drag for focus mode
+    Promise.all([
+      window.electronAPI.invoke("change-window-size", {
+        width: nextMode ? 480 : 400,   // Smaller width for focus mode
+        height: nextMode ? 120 : 900,  // Make it taller for better interaction
+      }),
+      window.electronAPI.invoke("set-always-on-top", nextMode),
+      window.electronAPI.invoke("enable-drag", nextMode)
+    ])
+      .then(() => {
+        console.log("Focus mode updated - size, always on top, and drag:", nextMode);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to update focus mode:", error);
+      });
+  };
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
@@ -253,7 +274,7 @@ export default function Home() {
           )}
 
           <div className="flex h-screen">
-            <div className="w-[64px] h-screen bg-gray-800 flex flex-col flex-shrink-0 items-center gap-8 z-100">
+            {/* <div className="w-[64px] h-screen bg-gray-800 flex flex-col flex-shrink-0 items-center gap-8 z-100">
               <HomeIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <CheckCircleIcon className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer" />
               <PencilIcon
@@ -264,107 +285,126 @@ export default function Home() {
                 className="h-6 w-6 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer "
                 onClick={() => setSettingsOpen(true)}
               />
-            </div>
+            </div> */}
 
-            <SlideoutComponent isOpen={isEditingNote} onClose={toggleNoteMode}>
+            {/* <SlideoutComponent isOpen={isEditingNote} onClose={toggleNoteMode}>
               <NotesComponent />
-            </SlideoutComponent>
+            </SlideoutComponent> */}
 
             <SlideoutComponent
               isOpen={settingsOpen}
               onClose={() => setSettingsOpen(false)}
             >
-              <SettingsModal isOpen={settingsOpen}/>
+              <SettingsModal />
             </SlideoutComponent>
 
-            <div className="flex flex-col flex-1 h-screen gap-4 p-4 overflow-auto">
-              <ActivityBar />
+            <div className={`flex flex-col flex-1 h-screen gap-4 overflow-auto ${isFocusMode ? 'justify-center items-center p-0' : 'p-4'}`}>
+              {!isFocusMode && (
+                <ActivityBar actions={[
+                    { icon: 'home', onClick: () => {} },
+                    { icon: 'settings' , onClick: () => setSettingsOpen(true) },
+                    { icon: 'bolt', onClick: () => {} }
+                  ]} />
+              )}
               {activeTask && (
-                <ActiveTask task={activeTask} onComplete={completeTask} onChange={updateTask} />
+                <ActiveTask 
+                  task={activeTask} 
+                  onComplete={completeTask}
+                  onToggleFocus={toggleFocusMode}
+                  isFocusMode={isFocusMode}
+                />
               )}
 
-              <ProgressBar progress={progress} text={progressText} />
-              <TaskList className="min-h-0 max-h-[75%]">
-                {tasks.length > 0 &&
-                  tasks
-                    .filter((task) => !task.completed && !task?.active)
-                    .map((task, index) => (
-                      <TaskComponent
-                        disableHover={settingsOpen}
-                        key={task.id}
-                        order={index + 1}
-                        task={task}
-                        taskId={task.id}
-                        onDelete={() => removeTask(task.id)}
-                        onComplete={() =>
-                          updateTask({
-                            ...task,
-                            completed: true,
-                          })
-                        }
-                        onStart={(taskId) => {
-                          const taskToStart = tasks.find(
-                            (t) => t.id === taskId,
-                          );
-                          if (taskToStart) {
-                            setTasks((prevTasks) =>
-                              prevTasks.map((t) =>
-                                t.id === taskToStart.id
-                                  ? { ...t, active: true }
-                                  : { ...t, active: false },
-                              ),
-                            );
-                            setActiveTask(taskToStart);
-                          }
-                        }}
-                      />
-                    ))}
-              </TaskList>
+              {!isFocusMode && (
+                <>
+                  <ProgressBar progress={progress} text={progressText} />
+                  <TaskList className="min-h-0 max-h-[75%]">
+                    {tasks.length > 0 &&
+                      tasks
+                        .filter((task) => !task.completed && !task?.active)
+                        .map((task, index) => (
+                          <TaskComponent
+                            disableHover={settingsOpen}
+                            key={task.id}
+                            order={index + 1}
+                            task={task}
+                            taskId={task.id}
+                            onDelete={() => removeTask(task.id)}
+                            onComplete={() =>
+                              updateTask({
+                                ...task,
+                                completed: true,
+                              })
+                            }
+                            onStart={(taskId) => {
+                              const taskToStart = tasks.find(
+                                (t) => t.id === taskId,
+                              );
+                              if (taskToStart) {
+                                setTasks((prevTasks) =>
+                                  prevTasks.map((t) =>
+                                    t.id === taskToStart.id
+                                      ? { ...t, active: true }
+                                      : { ...t, active: false },
+                                  ),
+                                );
+                                setActiveTask(taskToStart);
+                              }
+                            }}
+                          />
+                        ))}
+                  </TaskList>
 
-              <AddTaskComponent
-                className="flex flex-col gap-2 shrink-0"
-                onAdd={addTask}
-              >
-                <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
-              </AddTaskComponent>
+                  <AddTaskComponent
+                    className="flex flex-col gap-2 shrink-0"
+                    onAdd={addTask}
+                  >
+                    <div className="h-[2px] mx-12 bg-gradient-to-r from-green-400 to-blue-500 border-0 rounded-full" />
+                  </AddTaskComponent>
 
-              {clearedTasks.length > 0 && (
-                <div
-                  className="text-gray-400 hover:text-gray-300 text-sm text-center"
-                  onClick={() => handleClearTasks()}
-                >
-                  {!hasCleared && <span>Clear list</span>}
-                  {hasCleared && <span>Undo</span>}
-                </div>
+                  {completedTasks.length > 0 && (
+                    <div
+                      className="text-gray-400 hover:text-gray-300 text-sm text-center"
+                      onClick={() => handleClearTasks()}
+                    >
+                      {!hasCleared && <span>Clear list</span>}
+                      {hasCleared && <span>Undo</span>}
+                    </div>
+                  )}
+
+                  {completedTasks.length <= 0 && (
+                    <div
+                      className="text-gray-400 hover:text-gray-300 text-sm text-center"
+                    >
+                      <span>All caught up</span>
+                    </div>
+                  )}
+
+                  <TaskList className="flex-[1_1_25%]">
+                    {tasks.length > 0 &&
+                      tasks
+                        .filter((task) => task.completed)
+                        .map((task) => (
+                          <CompletedTask
+                            key={task.id}
+                            task={task}
+                            onArchive={() =>
+                              updateTask({ ...task, archived: true })
+                            }
+                            onUncomplete={() =>
+                              updateTask({ ...task, completed: false })
+                            }
+                          />
+                        ))}
+                  </TaskList>
+
+                  <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
+                    <p className="text-sm">
+                      Version: <span className="text-blue-400">{version}</span>
+                    </p>
+                  </div>
+                </>
               )}
-
-              {clearedTasks.length <= 0 && (
-                <div className="text-gray-400 hover:text-gray-300 text-sm text-center">
-                  <span>All caught up</span>
-                </div>
-              )}
-
-              <TaskList className="flex-[1_1_25%]">
-                {tasks.length > 0 &&
-                  tasks
-                    .filter((task) => task.completed)
-                    .map((task) => (
-                      <CompletedTask
-                        key={task.id}
-                        task={task}
-                        onArchive={() => updateTask({ ...task, archived: true })}
-                        onUncomplete={() =>
-                          updateTask({ ...task, completed: false })
-                        }
-                      />
-                    ))}
-              </TaskList>
-
-              <div className="w-full h-8 pb-4 bg-[var(--background)] flex items-center justify-center">
-                <p className="text-sm">
-                  Version: <span className="text-blue-400">{version}</span>
-                </p>
-              </div>
             </div>
           </div>
         </main>
