@@ -10,16 +10,19 @@ export const subtasks = sqliteTable('subtasks', {
   completed: text().default('false'), // Using text to represent boolean in SQLite
 });
 
-export const SubtaskInsertSchema = createInsertSchema(subtasks).extend({
+export const SubtaskInsertSchema = createInsertSchema(subtasks, {
+  completed: z.string().optional().default('false'),
+}).extend({
+  parentId: z.number(),
   title: z.string().optional(),
-  completed: z.boolean().transform((val) => (val ? 'true' : 'false')).optional(),
 });
 export type SubtaskInsert = z.infer<typeof SubtaskInsertSchema>;
 
-export const SubtaskUpdateSchema = createUpdateSchema(subtasks).extend({
+export const SubtaskUpdateSchema = createUpdateSchema(subtasks, {
+  completed: z.string().optional(),
+}).extend({
   id: z.number(),
   title: z.string().optional(),
-  completed: z.boolean().transform((val) => (val ? 'true' : 'false')).optional(),
 });
 export type SubtaskUpdate = z.infer<typeof SubtaskUpdateSchema>;
 

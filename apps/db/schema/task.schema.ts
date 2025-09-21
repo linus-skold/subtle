@@ -32,8 +32,8 @@ export type TaskUpdate = z.infer<typeof TaskUpdateSchema>;
 
 
 export const TaskSelectSchema = createSelectSchema(tasks, {
-  completed: z.stringbool(),
-  archived: z.stringbool(),
+  completed: z.string().transform((val) => val === 'true'),
+  archived: z.string().transform((val) => val === 'true'),
 }).extend({
   active: z.boolean().default(false),
   overtime: z.boolean().default(false),
