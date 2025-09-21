@@ -47,8 +47,8 @@ const EditTask = (props: {
     <Dialog
       open={open}
       as="div"
-      style={{ width: 'calc(100% - 64px)', height: 'calc(100% - 24px)' }}
-      className="fixed top-[24px] left-[64px] focus:outline-none flex min-h-full z-50"
+      style={{height: 'calc(100% - 24px)' }}
+      className="fixed top-[24px] w-full focus:outline-none flex min-h-full z-50"
       onClose={onClose}
     >
       <DialogPanel

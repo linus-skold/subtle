@@ -36,8 +36,8 @@ const Slideout = ({ isOpen, onClose, children }) => {
       {/* Slideout Panel — respects 64px sidebar */}
       <div
         ref={panelRef}
-        style={{ width: 'calc(100% - 64px)', height: 'calc(100% - 24px)' }}
-        className={`fixed top-[24px] left-[64px] h-full bg-brand-secondary shadow-lg transform transition-transform duration-300 z-50 will-change-transform
+        style={{ height: 'calc(100% - 24px)' }}
+        className={`fixed top-[24px] w-full h-full bg-brand-secondary shadow-lg transform transition-transform duration-300 z-50 will-change-transform
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Close Button */}

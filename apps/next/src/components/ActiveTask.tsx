@@ -6,9 +6,11 @@ import {
   PlayIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
-import EditTask from "./EditTask";
 import { type Task } from "@db/schema/task.schema";
 import { type Subtask } from "@db/schema/subtask.schema";
+
+import { EditTask, SubtasksBlock } from "@/components";
+import SubtaskComponent from "./SubtaskComponent";
 
 import { useTasks } from "@/context/TaskContext";
 
@@ -16,8 +18,12 @@ const ActiveTask = (props: {
   task: Task;
   onComplete: (taskId: number) => void;
   onChange?: (task: Task) => void;
+  onToggleFocus?: () => void;
+  isFocusMode?: boolean;
 }) => {
   const taskContext = useTasks();
+  const { taskService } = taskContext;
+
 
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [task, setTask] = useState<Task>();
@@ -143,52 +149,86 @@ const ActiveTask = (props: {
 
   return (
     <div
-      className="font-bold text-xl min-h-[60px]"
+      className={`font-bold text-xl ${props.isFocusMode ? 'w-full h-full flex items-center justify-center' : 'min-h-[60px]'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={props.isFocusMode ? { WebkitAppRegion: "drag" } as React.CSSProperties : {}}
     >
-      <div className="p-[2px] min-h-[60px] subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative">
-        <div className="bg-gray-800 rounded-lg relative">
+      <div className={`${props.isFocusMode ? 'w-full h-full p-0' : 'p-[2px] min-h-[60px]'} subtle-gradient-shift bg-gradient-to-r from-green-400 to-blue-500 rounded-lg relative`}>
+        <div className={`bg-gray-800 relative h-full ${props.isFocusMode ? 'rounded-none' : 'rounded-lg'}`}>
+          {/* Button area - only covers the buttons, not the whole area */}
           <div
-            className={`absolute top-0 left-0 w-full h-full flex justify-center items-center space-x-4 transition-opacity duration-200 ${
+            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center space-x-4 transition-opacity duration-200 ${
               isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            } px-2 py-1`}
+            style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
           >
+            {/* <div className="w-0 h-0" style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}></div> */}
+            {props.onToggleFocus && (
+              <button
+                className="h-5 w-5 text-gray-400 hover:text-purple-500 transition-colors font-bold text-lg leading-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onToggleFocus();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                title={props.isFocusMode ? "Exit focus mode" : "Enter focus mode"}
+              >
+                {props.isFocusMode ? "⤢" : "⛶"}
+              </button>
+            )}
+            
             <DocumentTextIcon
               className="h-5 w-5 text-gray-400 hover:text-blue-500 transition-colors"
-              onClick={() => setEditTaskOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditTaskOpen(true);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
             />
             {isPaused && (
               <PlayIcon
                 className={`h-5 w-5 text-gray-400 hover:text-green-500 ${isPausing ? "animate-ping" : ""}`}
-                onClick={() => setIsPausing(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPausing(true);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
               />
             )}
 
             {!isPaused && (
               <PauseIcon
                 className={`h-5 w-5 text-gray-400 hover:text-yellow-500 ${isPausing ? "animate-ping" : ""}`}
-                onClick={() => setIsPausing(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPausing(true);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
               />
             )}
             {/* <PauseIcon className="h-5 w-5 text-gray-400 hover:text-yellow-500 transition-colors" onClick={ () => setIsPaused(!isPaused)} /> */}
 
             <CheckCircleIcon
               className="h-5 w-5 text-gray-400 hover:text-green-500 transition-colors"
-              onClick={() => props.onComplete(task.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onComplete(task.id);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
             />
           </div>
           {/* Default Content (Title & Time) */}
           <div
-            className={`w-full h-full min-h-[60px] px-3 duration-200 ${
+            className={`w-full h-full px-3 duration-200 ${
               isHovered ? "opacity-0 pointer-events-none" : "opacity-100"
-            }`}
+            } ${props.isFocusMode ? 'min-h-full' : 'min-h-[60px]'}`}
           >
-            <div className="flex items-center justify-between w-full h-full min-h-[60px]">
+            <div className={`flex items-center justify-between w-full h-full ${props.isFocusMode ? 'min-h-full' : 'min-h-[60px]'}`}>
               <h1
                 className="text-white break-words leading-tight"
                 style={{
-                  fontSize: `clamp(0.75rem, ${Math.min(
+                  fontSize: props.isFocusMode ? '1rem' : `clamp(0.75rem, ${Math.min(
                     1.5,
                     20 / (task?.title?.length || 1),
                   )}rem, 1.25rem)`,
@@ -210,12 +250,16 @@ const ActiveTask = (props: {
               
 
               {/* <h1 className={overtimeRef.current ? "text-yellow-600" : "text-white"}>
+              <h1 className={`${overtime ? "text-yellow-600" : "text-white"} ${props.isFocusMode ? 'text-lg font-mono' : ''}`}>
                 {formatProgress(taskTimer)}
               </h1> */}
             </div>
+          
           </div>
         </div>
       </div>
+
+
 
       <EditTask
         open={editTaskOpen}
